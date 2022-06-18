@@ -1,0 +1,96 @@
+//------------------------------------------------
+//--- 010 Editor v10.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+enum <byte> TYPE
+{
+    TYPE_SINGLE,
+    TYPE_BOUND,
+    TYPE_DATA
+};
+
+struct BOUND {
+    float min[3];
+    float max[3];
+};
+
+struct VECTOR3 {
+    float x;
+    float y;
+    float z;
+};
+
+struct QUAT {
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct HEADER {
+    char signature[8];
+    int32 unknown1;
+    int32 propertySize;
+    if( propertySize )
+        char property[ propertySize ];
+
+    int32 numItems;
+} header;
+
+struct NAME {
+    uint32 nameLength;
+    if( nameLength )
+        char name[nameLength];
+};
+
+
+struct ROTATION {
+    NAME name;
+};
+
+struct POSITION1 {
+    
+};
+
+struct POSITION2 {
+    int32 unknown;
+    float angle;
+    NAME name;
+};
+
+struct SCALE {
+    VECTOR3 scale;
+};
+
+struct ITEM {
+    NAME name;
+    int16 parentId;
+    int32 positionType;
+    switch( positionType )
+    {
+        case 1:
+            VECTOR3 position;
+            int32 unknown;
+            QUAT quat;
+            break;
+
+        case 2:
+            POSITION2 position2[3] <optimize=true>;
+            int32 unknown;
+            QUAT quat;
+            break;
+
+    }
+    ROTATION rotation;
+    int32 unknown2;
+    VECTOR3 position;
+    QUAT quat;
+} item[8]<optimize=false>;

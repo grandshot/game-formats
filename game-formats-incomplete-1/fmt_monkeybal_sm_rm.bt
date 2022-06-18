@@ -1,0 +1,36 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct TABLE {
+    uint32 s_offset;
+    uint32 s_size;
+    uint32 s_id;
+};
+
+struct CHUNK {
+    int32 sign;
+    uint16 count;
+    uint16 unknown;
+    uint32 sector_size;
+    TABLE table[count];
+};
+
+CHUNK chunk;
+local int i, tmp;
+for( i = 0; i < chunk.count; i++ )
+{
+    tmp = ReadUInt(chunk.table[i].s_offset);
+    Printf("%d %d\n", i, tmp);
+    if( tmp == 65537 ) { FSeek(chunk.table[i].s_offset); CHUNK chunk2; };
+    
+}

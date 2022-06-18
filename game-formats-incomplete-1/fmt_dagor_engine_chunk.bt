@@ -1,0 +1,44 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct HEADER {
+    uint32 sign;
+    uint32 numFiles;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 infoChunkSize;
+};
+
+struct NAME {
+    string itemName;
+};
+
+struct INFO {
+    uint32 stringsChunkSize;
+    uint32 numItems;
+    uint32 unknown;
+    uint32 unknown;
+    NAME name[numItems] <optimize=false>;
+
+    FSeek( startof(this) + stringsChunkSize );
+
+    uint32 unknown[numItems]; // size?
+};
+
+int sizeINFO ( INFO &info )
+{
+    return header.infoChunkSize;
+};
+
+HEADER header;
+INFO info <size=sizeINFO>;

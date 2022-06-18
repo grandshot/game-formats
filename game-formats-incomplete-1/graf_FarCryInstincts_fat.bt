@@ -1,0 +1,25 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct HEADER {
+    char signature[4];
+    uint32 numTables;
+};
+
+struct TABLE {
+    uint32 offset;
+    uint32 size;
+    uint32 nameCRC <format=hex>;
+};
+
+HEADER header;
+TABLE table[header.numTables];

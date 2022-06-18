@@ -1,0 +1,86 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: graf_dagor-engine_grp2.bt
+//   Authors: grandshot
+//   Version: 0.1
+//   Purpose: A template for parsing Dagor Engine resource packages (WarThunder, Crossout)
+//  Category: Game
+// File Mask: *.grp
+//  ID Bytes: 45 52 50 32
+//   History: 
+//------------------------------------------------
+
+struct HEADER {
+    char signature[4];
+    uint32 table_size;
+    uint32 table_size2;
+    uint32 package_size;
+};
+
+struct INFO {
+    uint32 names_offset;
+    uint32 num_names;
+    uint32 unknown; // 0
+    uint32 unknown; // 0
+    uint32 entries_offset;
+    uint32 num_entries;
+    uint32 unknown; // 0
+    uint32 unknown; // 0
+    uint32 entries_offset2;
+    uint32 num_entries2;
+    uint32 unknown; // 0
+    uint32 unknown; // 0
+};
+
+struct ENTRY {
+    uint16 unknown;
+    uint16 unknown;
+    uint32 file_offset <comment=file_offset_comment>;
+    uint16 name_id <comment=name_id_comment>;
+    uint16 unknown;
+};
+
+string file_offset_comment( uint32 file_offset )
+{
+    if( ReadUInt(file_offset) == 0xFD2FB528 ) return "ZSTD Compressed";
+    return "";
+};
+
+string name_id_comment( uint32 name_id )
+{
+    return ReadString( ReadUInt(name_id * 4 + info.names_offset) );
+};
+
+struct ENTRY2 {
+    uint16 unknown;
+    uint16 unknown;
+    uint16 unknown;
+    uint16 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+};
+
+HEADER header;
+INFO info;
+if( info.num_entries )
+{
+
+    FSeek( info.entries_offset );
+    struct TABLE {
+        ENTRY entry[info.num_entries] <optimize=false>;
+    } table;
+
+}
+
+if( info.num_entries2 )
+{
+
+    FSeek( info.entries_offset2 );
+    struct TABLE2 {
+        ENTRY2 entry2[info.num_entries2] <optimize=false>;
+    } table2;
+
+}

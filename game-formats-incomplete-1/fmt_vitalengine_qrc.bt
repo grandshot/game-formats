@@ -1,0 +1,355 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+enum <byte> LANG 
+{ 
+    ENGLISH, 
+    RUSSIAN, 
+    FRENCH, 
+    ITALIAN, 
+    SPANISH, 
+    GERMAN, 
+    DUTCH, 
+    JAPANCE, 
+    RESERVED, 
+    POLISH, 
+    HUNGARIAN, 
+    CZECH
+};
+enum <byte> GROUP
+{
+    GENERAL,
+    USEMENUS,
+    BUYMENUS,
+    HAX,
+    ACTIONS,
+    MISSIONS,
+    RADIOMSG,
+    NOTES,
+    KEYNAMES,
+    NETWORK = 10,
+    DLGSTRINGS = 16,
+    OBJNAMES,
+    CUTSCENES,
+    SIDPARAMS
+};
+
+struct RESOURCE {
+    uint32 offset <format=hex>;
+    uint32 count;
+};
+
+struct HEADER {
+    char sign[8];
+    RESOURCE unused;
+    RESOURCE strings;
+    RESOURCE dialogs;
+    RESOURCE stencils;
+    RESOURCE EAX;
+    RESOURCE scenaryObjects;
+    RESOURCE ambientSounds;
+    RESOURCE ambientZones;
+    RESOURCE unused;
+    RESOURCE walkSounds;
+    RESOURCE unused;
+    RESOURCE gameSounds;
+    RESOURCE models;
+    RESOURCE textureBreaks;
+    RESOURCE details;
+    RESOURCE tradeInfo;
+    RESOURCE stringGroups;
+    RESOURCE breakableObjects;
+    RESOURCE unused;
+    RESOURCE unused;
+    RESOURCE charDialogs;
+    RESOURCE managerData;
+    RESOURCE unused;
+    RESOURCE unused;
+    RESOURCE unused;
+    RESOURCE unused;
+    RESOURCE unused;
+    RESOURCE unused;
+    RESOURCE unused;
+    RESOURCE unused;
+    RESOURCE unused;
+    RESOURCE unused;
+};
+
+struct STRINGTABLE {
+    int16 id;
+    GROUP groupId;
+    LANG langId;
+    uint32 offset <format=hex>;
+    uint32 size;
+};
+
+struct TABLE {
+    int16 id;
+    int16 scenaryId;
+    int32 offset <format=hex>;
+    uint32 size;
+};
+
+struct TABLES {
+    FSeek( header.strings.offset );
+    STRINGTABLE strings[ header.strings.count ];
+
+    FSeek( header.dialogs.offset );
+    TABLE dialogs[ header.dialogs.count ];
+
+    FSeek( header.stencils.offset );
+    TABLE stencils[ header.stencils.count ];
+
+    FSeek( header.EAX.offset );
+    TABLE EAX[ header.EAX.count ];
+
+    FSeek( header.scenaryObjects.offset );
+    TABLE scenaryObjects[ header.scenaryObjects.count ];
+
+    FSeek( header.ambientSounds.offset );
+    TABLE ambientSounds[ header.ambientSounds.count ];
+
+    FSeek( header.ambientZones.offset );
+    TABLE ambientZones[ header.ambientZones.count ];
+
+    FSeek( header.walkSounds.offset );
+    TABLE walkSounds[ header.walkSounds.count ];
+    
+    FSeek( header.gameSounds.offset );
+    TABLE gameSounds[ header.gameSounds.count ];
+
+    FSeek( header.models.offset );
+    TABLE models[ header.models.count ];
+
+    FSeek( header.textureBreaks.offset );
+    TABLE textureBreaks[ header.textureBreaks.count ];
+
+    FSeek( header.details.offset );
+    TABLE details[ header.details.count ];
+
+    FSeek( header.tradeInfo.offset );
+    TABLE tradeInfo[ header.tradeInfo.count ];
+
+    FSeek( header.stringGroups.offset );
+    TABLE stringGroups[ header.stringGroups.count ];
+
+    FSeek( header.breakableObjects.offset );
+    TABLE breakableObjects[ header.breakableObjects.count ];
+
+    FSeek( header.charDialogs.offset );
+    TABLE charDialogs[ header.charDialogs.count ];
+
+    FSeek( header.managerData.offset );
+    TABLE managerData[ header.managerData.count ];
+};
+
+struct STRING( uint size ) {
+    byte unknown[2];
+
+    uint16 textSize;
+    if( textSize )
+        char text[ textSize ];
+    
+    uint16 infoSize;
+    if( infoSize )
+        char info[ infoSize ];
+
+    uint16 commentSize;
+    if( commentSize )
+        char comment[ commentSize ];
+    uint16 len;
+    uint16 lines;
+
+};
+
+string stringInComment( STRING &_string )
+{
+    local string temp;
+    
+    if( _string.textSize )
+        temp = _string.text;
+    return temp;
+};
+
+struct DESCRIPTION {
+    uint32 descSize;
+    if( descSize )
+        char description[ descSize ];
+};
+
+struct DIALOG( int tableSize, int tableId ){
+
+    local int tableId = tableId, tableSize = tableSize;
+    if( tableId != -1 )
+    {
+        uint32 stringId; //seems deprecated
+        uint32 questionId;
+        uint32 answerId;
+        uint32 unknown;
+        uint32 rel;
+        uint32 animId;
+        uint32 msgId;
+    
+        if( !stringId )
+        {
+            ubyte globalTrgSize;
+            if( globalTrgSize )
+                char globalTrigger[ globalTrgSize ];
+        
+            ubyte keywordSize;
+            if( keywordSize )
+                char keyword[ keywordSize ];
+        
+            ubyte localTrgSize;
+            if( localTrgSize )
+                char localTrigger[ localTrgSize ];
+            
+            ubyte trgSetSize;
+            if( trgSetSize )
+                char triggerSet[ trgSetSize ];
+        }
+        else
+        {
+            ubyte unknown;
+            ubyte trgSetSize;
+            if( trgSetSize )
+                char triggerSet[ trgSetSize ];
+        }
+    }
+
+    else
+    {
+        uint32 descSize;
+        if( descSize )
+            char description[ descSize ];
+    }
+};
+
+string commentDIALOG( DIALOG &dialog )
+{
+    local string temp;
+    
+    if( dialog.tableId == -1 )
+        if( dialog.descSize )
+            temp = dialog.description;
+    return temp;
+};
+
+struct STENCIL {
+    ubyte stencilTextSize;
+    if( stencilTextSize )
+        char stencilText[ stencilTextSize ];
+};
+
+struct SCENARY {
+    uint32 nameId;
+    byte unknown[4];
+    ubyte initParamsSize;
+    if( initParamsSize )
+        char initParams[ initParamsSize ];
+    byte kind;
+    float mass;
+    uint32 animId;
+    ubyte inventoryMdlSize;
+    if( inventoryMdlSize )
+        char inventoryModel[ inventoryMdlSize ];
+    ubyte levelMdlSize;
+    if( levelMdlSize )
+        char levelModel[ levelMdlSize ];
+    byte side;
+    byte sound; 
+};
+
+struct TEXBREAK {
+    ubyte texture1Size;
+    if( texture1Size )
+        char texture1;
+    ubyte texture2Size;
+    if( texture2Size )
+        char texture2;
+};
+
+struct TRADEINFO( uint size ) {
+
+    if( size >= 29 )
+    {
+        uint32 unknown;
+        uint32 goodId;
+        uint32 count;
+        ubyte globalTrgSize;
+        if( globalTrgSize )
+            char globalTrigger[ globalTrgSize ];
+    
+        uint32 exp;
+        uint32 buyPrice;
+        uint32 buyVariation;
+        uint32 sellPrice;
+        if( (29 + globalTrgSize) < size )
+        {
+            uint32 sellVariation;
+            uint32 relVariation;
+        }
+    }
+    else
+        byte unknown[size];
+};
+
+HEADER header;
+
+FSeek( header.unused[0].offset );
+TABLES tables;
+
+local int i;
+FSeek( tables.strings[0].offset );
+struct {
+    for( i = 0; i < header.strings.count; i++ )
+    {
+        FSeek( tables.strings[i].offset );
+        STRING string_( tables.strings[i].size )  <comment=stringInComment>;
+    }
+} strings <name="String Resources">;
+
+FSeek( tables.dialogs[0].offset );
+struct {
+    for( i = 0; i < header.dialogs.count; i++ )
+    {
+        FSeek( tables.dialogs[i].offset ); 
+        DIALOG dialog( tables.dialogs[i].size, tables.dialogs[i].id ) <comment=commentDIALOG>;
+    }
+} dialogs <name="Dialogs">;
+
+FSeek( tables.stencils[0].offset );
+struct {
+    for( i = 0; i < header.stencils.count; i++ )
+    {
+        FSeek( tables.stencils[i].offset );
+        STENCIL stencil;
+    }
+} stencils <name="Stencils">;
+
+FSeek( tables.scenaryObjects[0].offset );
+struct {
+    for( i = 0; i < header.scenaryObjects.count; i++ )
+    {
+        FSeek( tables.scenaryObjects[i].offset );
+        SCENARY scenaryObject;
+    }
+} scenary <name="Scenary Objects">;
+
+FSeek( tables.tradeInfo[0].offset );
+struct {
+    for( i = 0; i < header.tradeInfo.count; i++ )
+    {
+        FSeek( tables.tradeInfo[i].offset );
+        TRADEINFO tradeInfo( tables.tradeInfo[i].size );
+    }
+} trade <name="Trade Info">;

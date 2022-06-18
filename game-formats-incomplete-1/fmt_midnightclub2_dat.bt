@@ -1,0 +1,45 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct HEADER {
+    char sign[4];
+    uint32 numTables;
+    uint32 tablesBlockSize;
+    uint32 namesBlockSize;
+};
+
+struct TABLE {
+    uint32 offsetNameBytes;
+    uint32 offset;
+    uint32 size;
+    uint32 compSize;
+};
+
+int align( int size )
+{
+    local int alignSize = 0;
+    while( alignSize < size ) alignSize += 2048;
+
+    return alignSize;
+}
+
+struct TABLES;
+int SIZEtables( TABLES &tables )
+{
+    //return align (header.numTables * 16);
+    return header.tablesBlockSize;
+};
+
+HEADER header <size=2048>;
+struct TABLES {
+TABLE table[header.numTables];
+} tables <size=SIZEtables>;

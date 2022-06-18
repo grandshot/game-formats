@@ -1,0 +1,142 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct TRISTRIPS( int num_ids ) {
+    uint32 id[num_ids] <optimize=false>;
+};
+
+struct TVERTS {
+    float u;
+    float v;
+};
+
+struct VERTEX {
+    float x;
+    float y;
+    float z;
+};
+
+enum <ubyte> CHUNK_TYPES
+{
+    //;
+};
+
+struct CHUNK {
+    ubyte type;
+    ubyte stride; //num bits per value
+    ubyte unknown;
+    ubyte unknown;
+    uint32 size;
+
+    if( size )
+        switch( stride )
+        {
+            default: FSkip(size); break; //240
+            case 8: ubyte value[size]; break;
+            case 16: uint16 value[size / 2]; break;
+            case 32: uint32 value[size / 4]; break;
+        };
+};
+
+struct HEADER {
+    char sign[4];
+    int32 unknown;
+};
+
+struct HEADER_OBS {
+    char sign[4];
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 num_materials;
+    uint32 unknown;
+    uint32 unknown;
+    int32 unknown;
+    time_t timestamp;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    
+    uint32 tristrips_block_size;
+    TRISTRIPS tristrips( tristrips_block_size / 4 );
+    uint32 unknown;
+    uint32 num_tverts;
+    TVERTS tverts[num_tverts / 4] <optimize=true>;
+    float unknown;
+    float unknown;
+    
+    uint32 unknown;
+    uint32 unknown_ids_block_size;
+    uint32 unknown_ids[unknown_ids_block_size / 4];
+
+    uint32 unknown;
+    uint32 unknown_ids2_block_size;
+    uint32 unknown_ids2[unknown_ids2_block_size / 4];
+    
+    uint32 unknown;
+    uint32 unknown_ids3_block_size;
+    uint32 unknown_ids3[unknown_ids3_block_size / 4];
+
+    uint32 unknown;
+    uint32 unknown_ids4_block_size;
+    uint32 unknown_ids4[unknown_ids4_block_size / 4];
+    
+    uint32 unknown;
+    uint32 unknown_bytes_block_size;
+    byte unknown_bytes[unknown_bytes_block_size];
+
+    uint32 unknown;
+    uint32 unknown_bytes2_block_size;
+    byte unknown_bytes2[unknown_bytes2_block_size];
+
+    uint32 unknown;
+    uint32 unknown_ids5_block_size;
+    uint32 unknown_ids5[unknown_ids5_block_size / 4];
+
+    uint32 unknown;
+    uint32 vertex_block_size;
+    VERTEX vertex[vertex_block_size / 12];
+
+    uint32 unknown;
+    uint32 unknown_bytes3_block_size;
+    byte unknown_bytes3[unknown_bytes3_block_size];
+
+    uint32 unknown;
+    uint32 unknown_bytes4_block_size;
+    byte unknown_bytes4[unknown_bytes4_block_size];
+};
+
+HEADER header;
+
+while( !FEof() )
+    CHUNK chunk <optimize=false>;

@@ -1,0 +1,30 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+
+struct COMMAND {
+    uint32 length;
+    if( length ) char command[length];
+};
+
+string commandInComment( COMMAND &command )
+{
+    return ReadString(startof(command) + 4);
+};
+
+struct COMMANDS {
+    uint32 numCommands;
+    if( numCommands ) COMMAND command[numCommands]<comment=commandInComment, optimize=false>;
+};
+
+COMMANDS commands;

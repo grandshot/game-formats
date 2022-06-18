@@ -1,0 +1,37 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+BigEndian();
+
+struct HEADER {
+    char sign[12];
+    uint32 numTables;
+    uint32 numTableAlign; 
+};
+
+struct ALIGN {
+    uint32 tableOffset[header.numTableAlign+1];
+};
+
+struct TABLE {
+    uint32 nameOffset;
+    uint32 nameHash;
+    uint32 nameSize;
+    uint32 fileOffset;
+    uint32 fileSize;
+    uint32 fileSizeCompressed;
+    uint32 unknown;
+};
+
+HEADER header;
+ALIGN align;
+TABLE table[header.numTables];

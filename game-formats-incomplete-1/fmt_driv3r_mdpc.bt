@@ -1,0 +1,180 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct VECTOR4 {
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct MATRIX {
+    float row1[4];
+    float row2[4];
+    float row3[4];
+    float row4[4];
+};
+
+struct HEADER {
+    uint32 version;
+    uint32 uid;
+    uint32 numModels;
+    uint32 offsetModels;
+    uint32 numInstances;
+    uint32 offsetInstances;
+    uint32 numSubModels;
+    uint32 offsetSubModels;
+    uint32 handle;
+    uint32 reserved;
+    uint32 offsetTextures;
+    uint32 offsetMaterials;
+    uint32 numFaces;
+    uint32 lengthFaces;
+    uint32 offsetFaces;
+    
+    uint32 numVertDecl;
+    uint32 offsetVertDecl;
+
+} header;
+
+struct LODINFO {
+    uint32 offsetInstances;
+    uint32 unknown;
+    uint32 numInstances;
+    uint32 unknown;
+    uint32 flags;
+    uint32 mask;
+    uint32 extraData;
+};
+
+struct MODEL { //node
+    uint32 uid1 <format=hex>;
+    uint32 uid2 <format=hex>;
+    VECTOR4 scale;
+    uint16 bufferId;
+    uint16 bufferType;
+    uint32 flags;
+    uint32 unknown;
+    uint32 unknown;
+
+    VECTOR4 vector1[4]; //bbox
+    VECTOR4 vector2[4];
+
+    LODINFO lodInfo[8];
+    
+};
+
+struct INSTANCE {
+    uint32 offsetSubModels;
+    uint32 unknown;
+
+    MATRIX transform;
+    
+    uint16 numSubModels;
+    uint16 useTransform;
+
+    uint32 unknown;
+    
+    //debug info
+    uint32 unknown;
+    uint16 handle;
+    uint16 unknown;
+    
+};
+
+struct SUBMODEL { //geompart
+    uint32 primitiveType;
+    uint32 offsetVerticesBase;
+    uint32 offsetVertices;
+    uint32 numVertices;
+    uint32 offsetFaces;
+    uint32 numFaces;
+    FSkip(24);
+    uint32 materialHandle;
+    uint32 materialUID;
+};
+
+struct MATERIAL {
+    uint32 sign;
+    uint32 version;
+    uint32 numMaterials;
+    uint32 offsetMaterials;
+    
+    uint32 numSunstanceRefs;
+    uint32 offsetSubstanceRefs;
+    uint32 numsSubstances;
+    uint32 offsetSunstances;
+
+    /*
+    if( hasPalette )
+    {
+        uint32 numPaletteRefs;
+        uint32 offsetPaletteRefs;
+        uint32 numPalettes;
+        uint32 offsetPalettes;
+
+    };
+    */
+
+    uint32 numTextureRefs;
+    uint32 offsetTextureRefs;
+
+    uint32 numTextures;
+    uint32 offsetTextures;
+
+    uint32 offsetTextureData;
+    uint32 sizeTextureData;
+};
+
+struct TEXTURE {
+    uint32 uid;
+    uint32 handle;
+    
+    uint32 offsetData;
+    uint32 sizeData;
+    
+    uint32 type;
+    uint16 width;
+    uint16 height;
+    uint16 flags;
+    uint16 unknown;
+    uint32 unknown;
+};
+
+if( header.numModels )
+{
+    FSeek( header.offsetModels );
+    MODEL model[header.numModels];
+};
+
+if( header.numInstances )
+{
+    FSeek( header.offsetInstances );
+    INSTANCE instance[header.numInstances];
+};
+
+if( header.numSubModels )
+{
+    FSeek( header.offsetSubModels );
+    SUBMODEL submodel[header.numSubModels] <optimize=true>;
+};
+
+if( header.offsetMaterials )
+{
+    FSeek( header.offsetMaterials );
+    MATERIAL material;
+
+    if( material.numTextures )
+    FSeek( startof(material) + material.offsetTextures );
+    TEXTURE texture[material.numTextures];
+};
+

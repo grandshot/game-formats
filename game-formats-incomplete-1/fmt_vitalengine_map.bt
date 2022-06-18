@@ -1,0 +1,207 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+enum <uint32> SIDE
+{
+    SIDE_NONE,
+    SIDE_OFFICIALS,
+    SIDE_GUERILLA,
+    SIDE_DRUGSMAFIA,
+    SIDE_BANDITS,
+    SIDE_INDIANS,
+    SIDE_CIA,
+    SIDE_CIVILIANS
+};
+
+enum <byte> TURN 
+{ 
+    ANGLE_0, 
+    ANGLE_90, 
+    ANGLE_180, 
+    ANGLE_270 
+};
+struct CELL {
+    uint16 smid;
+    uint16 kind;
+    TURN turn;
+    byte layer;
+};
+
+struct LOCATION {
+    uint32 id;
+    SIDE side; 
+    uint32 numSmid;
+    if( numSmid )
+        uint32 smid[ numSmid ];
+
+    ubyte nameSize;
+    if( nameSize )
+        char name[ nameSize ];
+    uint32 numCharacters; //associated characters, unused
+    if( numCharacters )
+        uint32 scenaryId[ numCharacters ];
+};
+
+struct SUBMISSION {
+    uint32 subId;
+    uint32 stringId;
+    uint32 locationId;
+    ubyte rulesSize;
+    if( rulesSize )
+        char rules[ rulesSize ];
+};
+
+struct MISSION {
+    uint32 missionId;
+    uint32 isScenary;
+    uint32 numSubs;
+    ubyte descSize;
+    if( descSize )
+        char description[ descSize ];
+
+    if( numSubs )
+        SUBMISSION submission[ numSubs ] <optimize=false>;
+};
+
+struct INFCELL {
+    uint16 smid;
+    ubyte infpropId;
+};
+
+enum <int32> INFMODE
+{
+    NONE,
+    NO_ANIMALS,
+    NO_RANDOM_WARRIORS,
+    NO_WARRIORS_AND_ANIMALS
+};
+
+struct INFPROP {
+    int32 id;
+    ubyte nameSize;
+    if( nameSize )
+        char name[ nameSize ];
+    SIDE side1;
+    SIDE side2;
+    float firstSideInfluence;
+    float helicopters;
+    float cars;
+    INFMODE mode;
+};
+
+enum <ubyte> LVLHEIGHT
+{
+    LEVEL_BASE,
+    LEVEL_FIRST,
+    LEVEL_SECOND,
+    LEVEL_THIRD
+    
+}; 
+
+struct LEVEL {
+    uint16 smid;
+    LVLHEIGHT height;
+};
+
+enum <byte> DISTANCE
+{
+    DIST_60_LOW,
+    DIST_100,
+    DIST_140_MEDIUM,
+    DIST_180,
+    DIST_200_NORMAL,
+    DIST_300,
+    DIST_400_LONG
+};
+
+struct CELLPROP {
+    uint16 smid;
+    DISTANCE distance;
+    ubyte skyId;
+};
+
+enum <byte> GROUPKIND
+{
+    NO_KIND,
+    ON_PLANET,
+    IN_SHIP,
+    IN_SPACE
+};
+
+struct GROUP {
+    uint32 groupId;
+    uint32 numCells;
+    if( numCells ) uint32 smid[ numCells ];
+    ubyte nameSize;
+    if( nameSize ) char name[ nameSize ];
+    uint32 parentSmid;
+    ubyte listSize;
+    if( listSize ) char localSmidList[ listSize ];
+    GROUPKIND kind;
+ 
+};
+
+struct MAP {
+    uint32 numCells;
+    if( numCells )
+        struct {
+            CELL cell[ numCells ] <optimize=false>;
+        } CELLS;
+    
+    uint32 itmp[2];
+    uint32 birthX;
+    uint32 birthY;
+    uint32 versionId;
+    uint32 numLocations;
+    if( numLocations )
+        struct {
+            LOCATION location[ numLocations ] <optimize=false>;
+        } LOCATIONS;
+
+    uint32 numMissions;
+    if( numMissions )
+        struct {
+            MISSION mission[ numMissions ] <optimize=false>;
+        } Missions;
+
+    uint32 unknown2;
+
+    if( numCells )
+        struct {
+            INFCELL influenceCell[ numCells ] <optimize=false>;
+        } INFCELLS;
+
+    uint32 numInfprops; 
+    if( numInfprops )
+        struct {
+            INFPROP influenceProps[ numInfprops ] <optimize=false>;
+        } INFPROPS;
+
+    uint32 unknown3;
+    if( numCells )
+    {
+        struct {
+            LEVEL level[ numCells ] <optimize=false>;
+        } LEVELS;
+
+        struct {
+            CELLPROP cellprop[ numCells ] <optimize=false>;
+        } CELLPROPS;
+    }
+
+    uint32 numGroups;
+    if( numGroups )
+        GROUP group[ numGroups ] <optimize=false>;
+
+    uint32 numTaxiCells;
+    if( numTaxiCells ) struct { uint32 smid; } TAXICELLS[ numTaxiCells ];
+} map;

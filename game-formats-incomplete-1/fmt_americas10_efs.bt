@@ -1,0 +1,46 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct TABLE {
+    uint32 nameOffset <format=hex>;
+    uint32 fileOffset <format=hex>;
+    uint32 compSize;
+    uint32 size;
+    uint32 unknown;
+};
+
+string CommentTABLE( TABLE &table )
+{
+    local string temp, name, comp, unk;
+    if( table.size != table.compSize )
+        comp = "compressed";
+    if( table.unknown )
+        unk = (char)table.unknown;
+
+    name = ReadString( table.nameOffset );
+    
+    SPrintf(temp, "%s %s %s", name, comp, unk);
+    
+    return temp;
+};
+
+
+struct HEADER {
+    char sign[4];
+    uint32 starOffset <format=hex>;
+    uint32 numFiles;
+    uint32 unknown;
+
+    if( numFiles )
+        TABLE table[numFiles] <comment=CommentTABLE>;
+
+} header;

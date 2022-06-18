@@ -1,0 +1,85 @@
+//------------------------------------------------
+//--- 010 Editor v10.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct HEADER {
+    byte signature[4];
+    float unknown;
+    float unknown;
+    float unknown;
+    uint32 width;
+    uint32 length;
+    uint32 numGrassClusters;
+    uint32 unknown;
+};
+
+struct GRASS {
+    uint32 unknown;
+    uint32 unknown;
+    float unknown;
+    float unknown;
+    uint32 unknown;
+    
+    struct BLOCK {
+        ubyte unknown[header.length];
+    } block[header.width] <optimize=true>;
+};
+
+struct FLAM {
+    char signature[4];
+    
+    struct BLOCK_FLAM {
+        ubyte unknown[header.length];
+    } block[header.width] <optimize=true>;
+
+    uint32 unknown;
+    float unknown;
+    float unknown;
+    byte unknown;
+    byte unknown;
+    byte unknown;
+    byte unknown;
+    byte unknown;
+    byte unknown;
+    byte unknown;
+    float unknown;
+    byte unknown;
+    byte unknown;
+    byte unknown;
+    byte unknown;
+    byte unknown;
+    byte unknown;
+};
+
+struct SHDW {
+    char signature[4];
+    uint32 height;
+    uint32 width;   
+};
+
+struct UNKNOWN {
+    byte unknown[18];
+    float unknown2[11];
+    byte unknown3[22];
+};
+
+HEADER header;
+
+if( header.numGrassClusters ) GRASS grassCluster[header.numGrassClusters] <optimize=true>;
+FLAM flam;
+
+int SizeOfSHDW( SHDW &shdw ) {
+    return (ReadUInt(startof(shdw) + 4) * ReadUInt(startof(shdw) + 8) / 2 + 12);
+};
+SHDW shdw <size=SizeOfSHDW>;
+
+UNKNOWN unknown;

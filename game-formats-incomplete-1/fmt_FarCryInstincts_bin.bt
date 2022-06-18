@@ -1,0 +1,80 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct VECTOR2 {
+    float x, y;
+};
+
+struct VECTOR3 {
+    float x, y, z;
+};
+
+struct VECTOR4 {
+    float x, y, z, w;
+};
+
+struct QUAT {
+    float x, y, z, w;
+};
+
+struct VALUE {
+    int32 type;
+    switch( type )
+    {
+        case 0:
+            VECTOR4 value;
+            break;
+
+        case 1:
+            VECTOR3 value;
+            break;
+
+        case 2:
+            VECTOR2 value;
+            break;
+
+    }
+};
+
+struct NAME {
+    uint32 length;
+    if( length ) char name[length];
+};
+
+struct BONE {
+    NAME boneName;
+    int16 unknown;
+    
+    
+    
+};
+
+struct ACTOR {
+    uint32 numBones;
+};
+
+struct HEADER {
+    char signature[8];
+    uint32 unknown;
+    NAME type;
+};
+
+HEADER header;
+
+switch( header.type.name )
+{
+    case "MOREActor::ActorModel":
+        ACTOR actorModel;
+        break;
+
+}
+    

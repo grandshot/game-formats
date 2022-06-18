@@ -1,0 +1,39 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: graf_ios_car.bt
+//   Authors: grandshot
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: *.car
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct HEADER {
+    char signature[4];
+    uint32 alignment;
+    char platform[4];
+    uint32 base_offset;
+    uint32 num_files;
+    uint32 unknown;
+    uint32 unknown;
+};
+
+struct TABLE {
+    int32 type;
+    FILETIME timestamp;
+    uint32 size;
+    uint32 name_id;
+    uint32 offset;
+    uint32 unknown;
+};
+
+struct NAME {
+    uint32 name_size;
+    char name[name_size];
+};
+
+HEADER header;
+TABLE table[header.num_files];
+NAME name[header.num_files] <optimize=false>;

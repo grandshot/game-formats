@@ -1,0 +1,135 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct UNKNOWN1 {
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    float unknown;
+    float unknown;
+    float unknown;
+    uint32 unknown;
+    byte unknown_bytes[4];
+};
+
+struct UNKNOWN2 {
+    float unknown;
+    uint32 count;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+
+    if( count ) uint32 value[count];
+};
+
+struct FACE {
+    uint16 id[3];
+};
+
+struct FACES( int numFaces ) {
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int16 unknown;
+    int16 unknown;
+    int32 unknown;
+    int32 unknown;
+    
+    FACE face[numFaces];
+};
+
+struct VECTOR3 {
+    float x;
+    float y;
+    float z;
+};
+
+struct VERTICES {
+    float position[3];
+    float normal[3];
+    float uv[2];
+};
+
+struct CHUNK {
+    int32 id;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 chunkSize;
+
+    float max[3];
+    float min[3];
+    uint32 numVectors;
+    uint32 numUnknown1;
+    uint32 vectorsOffset;
+    uint32 unknown1Offset;
+    int32 unknown;
+    uint32 unknown2Offset;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    uint32 unknownOffset;
+    uint32 unknown3Offset;
+    int32 unknown;
+    int32 unknown;
+    uint32 verticesOffset; //not exact
+    float unknown;
+    uint32 unknown;
+    
+    uint32 numVertices;
+    uint32 numFaces;
+
+    if( numFaces )
+        FACES faces( numFaces );
+    
+    if( numVectors )
+    {
+        FSeek( startof(this) + vectorsOffset );
+        VECTOR3 vector[numVectors];
+    }
+
+    if( numUnknown1 )
+    {
+        FSeek( startof(this) + unknown1Offset );
+        UNKNOWN1 unknown1[numUnknown1];
+    }
+
+
+    FSeek( startof(this) + unknown2Offset );
+    UNKNOWN2 unknown2[ (unknown3Offset - unknown2Offset) / 2 ] <optimize=false>; //TODO
+
+    if( numVertices )
+    {
+        FSeek( startof(this) + verticesOffset );
+        VERTICES vertices[numVertices] <optimize=true>;
+    }
+
+};
+
+int SizeCHUNK( CHUNK &chunk )
+{
+    local int alignedSize = 512;
+    //while( alignedSize < chunk.size ) alignedSize += 512;
+    
+    Printf("%d\n", startof(chunk));
+    return alignedSize;
+};
+
+//CHUNK chunk[3] <optimize=false>;
+CHUNK chunk <size=512>;
+CHUNK chunk <size=3072>;
+CHUNK chunk <size=2560>;

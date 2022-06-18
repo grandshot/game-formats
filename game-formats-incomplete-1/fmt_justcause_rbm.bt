@@ -1,0 +1,253 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct VECTOR2 {
+    float x;
+    float y;
+};
+
+struct VECTOR3 {
+    float x;
+    float y;
+    float z;
+};
+
+struct VECTOR4 {
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct COLOR {
+    ubyte r;
+    ubyte g;
+    ubyte b;
+    ubyte a;
+};
+
+struct MATRIX {
+    float row1[4];
+    float row2[4];
+    float row3[4];
+    float row4[4];
+};
+
+struct BBOX {
+    VECTOR3 min;
+    VECTOR3 max;
+};
+
+struct AdditiveAlpha {
+    uint32 numBuffers;
+    if( numBuffers )
+        struct AABUFFER {
+            VECTOR3 position;
+            VECTOR2 uv;
+        } vertexBuffer[numBuffers] <optimize=true>;
+};
+
+struct Diffuse {
+
+};
+
+struct DiffuseAlphaSkinned {
+
+};
+
+struct DiffuseDetail {
+
+};
+
+struct DiffuseNoTex {
+
+};
+
+struct DiffuseVertexColors {
+
+};
+
+struct DiffuseVertexColorsBump {
+
+};
+
+struct DiffuseSkinned {
+    uint32 numPositions;
+    if( numPositions ) 
+        VECTOR3 position[numPositions] <optimize=true>;
+
+    uint32 numBuffers;
+    if( numBuffers )
+        struct {
+            COLOR unknown;
+            VECTOR2 uv;
+        } DiffuseSkinnedBuffer[numBuffers] <optimize=true>;
+
+    uint32 numBuffers2;
+    if( numBuffers2 )
+        struct {
+            COLOR unknown;
+            COLOR unknown;
+        } SpecularBumpSkinnedBuffer2[numBuffers2] <optimize=true>;
+};
+
+struct EmissiveAlpha {
+
+};
+
+struct SpecularBump {
+
+};
+
+struct SpecularBumpSkinned {
+    uint32 numPositions;
+    if( numPositions ) 
+        VECTOR3 position[numPositions] <optimize=true>;
+    
+    uint32 numBuffers;
+    if( numBuffers )
+        struct {
+            COLOR unknown;
+            COLOR unknown;
+            COLOR unknown;
+            VECTOR2 uv;
+        } SpecularBumpSkinnedBuffer[numBuffers] <optimize=true>;
+
+    uint32 numBuffers2;
+    if( numBuffers2 )
+        struct {
+            COLOR unknown;
+            COLOR unknown;
+        } SpecularBumpSkinnedBuffer2[numBuffers2] <optimize=true>;
+    
+};
+
+struct SpecularDetailSkinned {
+
+};
+
+struct SpecularSkinned {
+
+};
+
+struct VERTEX {
+    
+    switch( parentof(this).mapType )
+    {
+        case "AdditiveAlpha":
+            VECTOR3 position;
+            VECTOR2 uv;
+            break;
+
+        case "SpecularBumpSkinned":
+        case "DiffuseVertexColors":
+            VECTOR3 position;
+            break;
+
+        default:
+            VECTOR3 position;
+            VECTOR2 uv;
+            float unknown;
+            break;
+    }
+};
+
+struct VERTEX2 {
+    VECTOR2 uv;
+    COLOR color;
+    COLOR color;
+};
+
+struct VERTEX3 {
+    VECTOR3 unknown;
+    VECTOR2 uv;
+};
+
+struct FACES( int count ) {
+    uint16 vertexId[count];
+};
+
+struct UNK {
+    byte unk1[4];
+    byte unk2[4];
+};
+
+struct GEOMPART {
+    uint32 mapTypeSize;
+    char mapType[mapTypeSize];
+    uint32 mapNameSize;
+    char mapName[mapNameSize];
+
+    uint32 map2NameSize;
+    if( map2NameSize )
+        char map2Name[map2NameSize];
+    
+    VECTOR3 position;
+    MATRIX transform;
+    uint32 unknown;
+    
+    switch( mapType )
+    {
+        case "AdditiveAlpha":
+            AdditiveAlpha vertexData;
+            break;
+        case "DecalAlpha":
+        case "DecalOverlay":
+        case "DecalPoster":
+        case "Diffuse":
+        case "DiffuseAlphaSkinned":
+        case "DiffuseDetail":
+        case "DiffuseNoTex":
+        case "DiffuseSkinned":
+            DiffuseSkinned vrtexData;
+            break;
+        case "DiffuseVertexColors":
+        case "DiffuseVertexColorsBump":
+        case "EmissiveAlpha":
+        case "FacadeBump":
+        case "FacadeVertexColors":
+        case "FacadeVertexColorsBump":
+        case "SkinSkinned":
+        case "SpecularBump":
+        case "SpecularBumpSkinned":
+            SpecularBumpSkinned vertexData;
+            break;
+        case "SpecularDetailSkinned":
+        case "SpecularSkinned":
+            break;
+
+    };
+        
+    uint32 hasPalette;
+    if( hasPalette )
+    struct PALETTE {
+        uint32 numVertices;
+        int32 boneId[19];
+    } palette;
+    
+    uint32 numFaces;
+    FACES faces(numFaces);
+    uint32 endSign;
+};
+
+struct HEADER {
+    uint32 signSize;
+    char sign[signSize];
+    uint32 versionMajor;
+    uint32 versionMinor;
+    uint32 versionRevision;
+    BBOX bbox;
+    uint32 numParts;
+    GEOMPART geompart[13] <optimize=false>;
+} header;
+
+

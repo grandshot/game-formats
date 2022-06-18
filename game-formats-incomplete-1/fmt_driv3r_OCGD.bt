@@ -1,0 +1,30 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct OCCLUDER {
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+OCCLUDER main;
+
+struct HEADER {
+    uint32 numOccluders;
+    uint32 unknown;
+    uint16 unknown;
+    uint16 unknown;
+    uint32 unknown;
+} header;
+
+OCCLUDER occluder[header.numOccluders * 4];

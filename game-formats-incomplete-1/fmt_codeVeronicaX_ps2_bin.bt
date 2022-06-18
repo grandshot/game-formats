@@ -1,0 +1,80 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+BigEndian();
+
+int Align( int size )
+{
+    local int temp;
+    while( temp < size )
+        temp += 256;
+
+    return temp;
+};
+
+// header in Little Endian
+struct HEADER {
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    uint32 dataOffset;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    FSkip(32);
+    uint32 dataSize;
+};
+
+struct FHM {
+    char sign[4];
+    int32 unknown;
+    int32 unknown;
+    int32 fhmSize;
+    uint32 numFiles;
+    uint32 offset[numFiles];
+    uint32 size[numFiles];
+    uint32 unknownValue[numFiles];
+};
+
+int SizeFHM( FHM &fhm )
+{
+    return Align( ReadUInt(startof(fhm) + 16) * 9 + 20 );
+    //right is return Align( ReadUInt(startof(fhm) + 12) );
+};
+
+struct NDP3 {
+    char sign[4];
+    uint32 size;
+};
+
+int SizeNDP3( NDP3 &ndp3 )
+{
+    return Align( ReadUInt(startof(ndp3) + 4) );
+};
+
+FSkip(65536);
+FHM fhm[2] <size=SizeFHM, optimize=false>;
+
+/*
+while( !FEof() )
+{
+    switch( ReadString(FTell(), 3) )
+    {
+        case "FHM":
+            FHM fhm <optimize=false, size=SizeFHM>;
+            break;
+        case "NDP":
+            NDP3 ndp3 <optimize=false, size=SizeNDP3>;
+            break;
+    };
+}*/

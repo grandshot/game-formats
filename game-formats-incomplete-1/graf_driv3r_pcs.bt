@@ -1,0 +1,190 @@
+//------------------------------------------------
+//--- 010 Editor v10.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct BLOCK;
+
+string getBlockInfo( struct BLOCK &b )
+{
+    local string temp;
+    
+    if( b.signature != "CHNK" )
+        SPrintf( temp, "%s", ReadString( b.offset + b.size, b.sizeInfo ) );
+    return temp;
+};
+
+string getBlockName( struct BLOCK &b )
+{
+    local string temp = "";
+
+
+    switch( b.signature )
+    {
+        case "CHNK":
+            SPrintf( temp, "ChunkPackage" );
+            break;
+        default:
+            SPrintf( temp, "%s Unknown", b.signature );
+            break;  
+    }
+
+    return temp;
+    
+};
+
+void standardBlock()
+{
+    uint32 offset <format=hex>;
+    byte version;
+    ubyte sizeInfo;
+    byte unknown[2];
+    uint32 size <format=hex>;
+};
+
+struct BLOCK
+{
+    char signature[4];
+    
+    switch( signature )
+    {
+        case "CHNK":
+            uint32 size <format=hex>;
+            uint32 numChunks;
+            uint32 unknown;
+    
+            if( numChunks > 0 )
+                BLOCK block[numChunks] <optimize=false, name=getBlockName, comment=getBlockInfo>;
+            break;
+        
+        case "GESR":
+        case "GEIR":
+        case "IRCT":
+        case "PINF":
+        case "GEGL":
+            standardBlock();
+            
+            local uint blockPosition = FTell();
+    
+            FSeek( offset );
+            BLOCK block <optimize=false, name=getBlockName, comment=getBlockInfo>;
+            FSeek( blockPosition );
+            break;
+        
+        default:
+            standardBlock();
+            break;
+    }
+};
+
+struct CHNK
+{
+    char signature[4];
+    uint32 size <format=hex>;
+    uint32 numChunks;
+    uint32 unknown;
+
+    local int i;
+    for( i = 1; i <= numChunks; i++ )
+        ChunkParser();
+};
+
+struct PCMP
+{
+    local int pcmpOffset = FTell();
+
+    char signature[4];
+    uint32 version;
+    
+    uint32 numMaterials;
+    uint32 offsetMaterials <format=hex>;
+    
+    uint32 numSubstanceReferences;
+    uint32 offsetSubstanceReferences <format=hex>;
+
+    uint32 numSubstances;
+    uint32 offsetSubstances <format=hex>;
+
+    uint32 numTextureReferences;
+    uint32 offsetTextureReferences <format=hex>;
+
+    uint32 numTextures;
+    uint32 offsetTextures <format=hex>;
+
+    uint32 offsetTextureData <format=hex>;
+    uint32 sizeTextureData;
+};
+
+struct MDPC_DATA
+{
+    local int mdpcOffset = FTell();
+
+    uint32 version;
+    uint32 uid;
+    uint32 numModels;
+    uint32 offsetModels <format=hex>;
+    uint32 numLodInstances;
+    uint32 offsetLodInstances <format=hex>;
+    uint32 numSubModels;
+    uint32 offsetSubModels <format=hex>;
+    uint32 handle <format=hex>;
+    uint32 reserved;
+    uint32 offsetTextures <format=hex>;
+    uint32 offsetMaterials <format=hex>;
+    
+    uint32 numIndices;
+    uint32 lengthIndices;
+    uint32 offsetIndices <format=hex>;
+    
+    uint32 numVertices;
+    uint32 offsetVertices <format=hex>;
+
+    if( offsetMaterials > 0 )
+    {
+        FSeek( offsetMaterials + mdpcOffset );
+        PCMP MaterialPackageData;
+    }
+};
+
+struct MDPC
+{
+    char signature[4];
+    uint32 offset <format=hex>;
+    byte version;
+    byte unknown[3];
+    uint32 size <format=hex>;
+
+    local int chunkPosition = FTell();
+
+    FSeek( offset );
+    MDPC_DATA ModelPackageData;
+    FSeek( chunkPosition );
+};
+
+void ChunkParser()
+{
+    switch( ReadString( FTell(), 4 ) )
+    {
+        case "MDPC":
+            MDPC ModelPackage_PC;
+            break;
+        case "CHNK":
+            CHNK ChunkPackage;
+            break;
+        default:
+            BLOCK block <name=getBlockName, comment=getBlockInfo>;
+            break;
+        
+    }
+};
+
+//ChunkParser();
+
+BLOCK block <optimize=false, name=getBlockName, comment=getBlockInfo>;

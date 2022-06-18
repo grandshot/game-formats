@@ -1,0 +1,51 @@
+//------------------------------------------------
+// sp%%%.sdat files it is low poly geometry of terrain blocks in sd%%%.sdat files.
+
+
+struct FACE
+{
+    uint16 a;
+    uint16 b;
+    uint16 c;
+};
+
+struct DATA
+{
+    float x;
+    float y;
+    float z;
+    float u;
+    float v;
+ 
+};
+
+struct RGBAFormat
+{
+    uint32 RBitMask <format=binary>;
+    uint32 GBitMask <format=binary>;
+    uint32 BBitMask <format=binary>;
+    uint32 ABitMask <format=binary>;
+    uint32 unknown;
+};
+
+struct HEADER
+{
+    char signature[4];
+    int32 unknown;
+    int32 unknown2;
+    ubyte unknown3[4];
+    uint32 numUnknown5;
+    uint32 numFaces;
+
+    RGBAFormat unknown6[4];
+
+    ubyte unknown7[4];
+    float unknown8;
+    float unknown9;
+};
+
+HEADER header;
+
+DATA data[header.numUnknown5];
+
+uint16 face[header.numFaces];

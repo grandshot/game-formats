@@ -1,0 +1,944 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+typedef struct {
+    float row[4];
+} MATRIX44[4];
+
+typedef struct {
+    float row[3];
+} MATRIX43[4];
+
+typedef struct {
+    float row[3];
+} MATRIX33[3];
+
+struct QUAT_WXYZ {
+    float w;
+    float x;
+    float y;
+    float z;
+};
+
+struct VECTOR2 {
+    float x;
+    float y;
+};
+
+struct VECTOR3 {
+    float x;
+    float y;
+    float z;
+};
+
+struct VERTEX {
+    VECTOR3 position;
+    VECTOR3 normal;
+};
+
+struct FACE {
+    uint32 vertexID[3];
+    uint32 materialdID;
+    uint32 smoothGroup;
+};
+
+struct TVERT {
+    float u;
+    float v;
+};
+
+struct TVFACE {
+    uint32 vertexID[3];
+};
+
+struct RGB {
+    ubyte r;
+    ubyte g;
+    ubyte b;
+};
+
+struct RGB_FLOAT {
+    float r;
+    float g;
+    float b;
+};
+
+enum <uint32> FileTypes
+{
+    FileType_Geom = 0xFFFF0000,
+    FileType_Anim
+};
+
+struct HEADER {
+    char signature[8];
+    FileTypes type <format=hex>;
+    uint32 version <format=hex>;
+    uint32 chunkTableOffset;
+};
+
+enum <uint32> ChunkTypes
+{
+    ChunkType_ANY,
+    ChunkType_Mesh = 0xCCCC0000,
+    ChunkType_Helper,
+    ChunkType_VertAnim,
+    ChunkType_BoneAnim,
+    ChunkType_GeomNameList,
+    ChunkType_BoneNameList,
+    ChunkType_MaterialsList,
+    ChunkType_MRM,
+    ChunkType_SceneProps,
+    ChunkType_Light,
+    ChunkType_PatchMesh, //Not Implemented
+    ChunkType_Node,
+    ChunkType_Material,
+    ChunkType_Controller,
+    ChunkType_Timing,
+    ChunkType_BoneMesh,
+    ChunkType_BoneLightBinding,
+    ChunkType_MeshMorphTarget,
+    ChunkType_BoneInitialPos,
+    ChunkType_SourceInfo
+};
+
+struct CHUNK_HEADER {
+    ChunkTypes type <format=hex>;
+    uint32 version <format=hex>;
+    uint32 offset;
+    if( header.version == 0x0744 ) uint32 id;
+};
+
+struct CHUNK_TABLE {
+    uint32 numChunks;
+    CHUNK_HEADER chunkHeader[numChunks] <optimize=false>;
+};
+
+// CUSTOM
+enum <uint32> CustAttribTypes
+{
+    CATYPE_INT,
+    CATYPE_FLOAT,
+    CATYPE_BOOL,
+    CATYPE_STRING
+};
+
+struct CustomAttribute {
+    CustAttribTypes type;
+    char name[32];
+    char value[64];
+};
+
+// CONTROLLER
+enum <uint32> ControllerTypes
+{
+    CTRL_NONE,
+    CTRL_CRYBONE,
+    CTRL_LINEAR_F1,
+    CTRL_LINEAR_F3,
+    CTRL_LINEAR_Q,
+    CTRL_BEZIER_F1,
+    CTRL_BEZIER_F3,
+    CTRL_BEZIER_Q,
+    CTRL_TCB_F1,
+    CTRL_TCB_F3,
+    CTRL_TCB_Q,
+    CTRL_BSPLINE_OPEN_B2,
+    CTRL_BSPLINE_OPEN_B1,
+    CTRL_BSPLINE_CLOSED_B2,
+    CTRL_BSPLINE_CLOSED_B1,
+    CTRL_CONSTANT
+};
+
+enum <uint32> ControllerFlags
+{
+    CTRL_ORT_CYCLE = 0x01,
+    CTRL_ORT_LOOP = 0x02
+};
+
+struct KEY_LINEAR_F1 {
+    uint32 time;
+    uint32 value;
+};
+
+struct KEY_LINEAR_F3 {
+    uint32 time;
+    VECTOR3 value;
+};
+
+struct KEY_LINEAR_Q {
+    uint32 time;
+    QUAT_WXYZ value;
+};
+
+struct KEY_TCB_F1 {
+    uint32 time;
+    uint32 value;
+    float tcb[3];
+    float ein;
+    float eout;
+};
+
+struct KEY_TCB_F3 {
+    uint32 time;
+    VECTOR3 value;
+    float tcb[3];
+    float ein;
+    float eout;
+};
+
+struct KEY_TCB_Q {
+    uint32 time;
+    QUAT_WXYZ value;
+    float tcb[3];
+    float ein;
+    float eout;
+};
+
+struct KEY_BEZIER_F1 {
+    uint32 time;
+    uint32 value;
+    float intan;
+    float outtan;
+};
+
+struct KEY_BEZIER_F3 {
+    uint32 time;
+    VECTOR3 value;
+    VECTOR3 intan;
+    VECTOR3 outtan;
+};
+
+struct KEY_BEZIER_Q {
+    uint32 time;
+    QUAT_WXYZ value;
+};
+
+struct KEY_CRYBONE {
+    uint32 time;
+    VECTOR3 absolutePosition;
+    VECTOR3 relativePosition;
+    QUAT_WXYZ relativeRotation;
+};
+
+struct KEY_CRYBONE_LOG {
+    uint32 time;
+    VECTOR3 position;
+    VECTOR3 rotationLogarithm;
+};
+
+struct BSPLINE_DATA {
+    uint32 degree;
+    uint32 numKnots;
+};
+
+// HELPERS
+enum <uint32> HelperTypes
+{
+    HP_POINT,
+    HP_DUMMY,
+    HP_XREF,
+    HP_CAMERA
+};
+
+// BONES
+struct LINK {
+    uint32 boneID;
+    VECTOR3 offset;
+    float blending;
+};
+
+struct BONE_INFO {
+    uint32 numLinks;
+    LINK link[numLinks];
+};
+
+struct BONE_PHYSICS {
+    uint32 geomID; //Id of separate mesh for this bone
+
+    uint32 flags;
+    float min[3];
+    float max[3];
+    float springAngle[3];
+    float springTension[3];
+    float damping[3];
+    MATRIX33 frameMatrix;
+};
+
+struct BONE_INITIAL_MATRIX {
+    MATRIX43 initialPosition;
+};
+
+struct BONE_LIGHT_BIND {
+    uint32 lightID; //Chunk ID
+    uint32 boneID; ////Parent bone id
+    VECTOR3 position; //Light position in the parent bone coordinate system
+    VECTOR3 rotation; //Logarithm of quaternion that describes the light orientation relative to the parent bone
+};
+
+// TEXTURES
+enum <uint16> TextureMappingTypes
+{
+    TEXMAP_NORMAL,
+    TEXMAP_ENVIRONMENT,
+    TEXMAP_SCREENENVIRONMENT,
+    TEXMAP_CUBIC,
+    TEXMAP_AUTOCUBIC
+};
+
+struct TEXTURE_MAP( int version ) {
+    if( version == 3 ) char name[128];
+    else char name[32];
+
+    if( version != 1 )
+    {
+        TextureMappingTypes type;
+        ubyte noMipMap;
+        ubyte amount;
+
+        if( version == 3 ) byte reserved[32];
+    }
+    
+    byte uTile;
+    byte uMirror;
+    byte vTile;
+    byte vMirror;
+
+
+    if( version != 1 )
+    {
+        uint32 reflectionUpdateInterval; //Update reflection every Nth frame
+        uint32 reflectionSize;
+        uint32 reflectionBlur;
+    }
+
+    //Texture position values
+    float uOffset;
+    float uScale;
+    float uRotation;
+    float vOffset;
+    float vScale;
+    float vRotation;
+    float wRotation;
+
+    //Texture position controller chunk IDs
+    int32 uOffsetID;
+    int32 uScaleID;
+    int32 uRotationID;
+    int32 vOffsetID;
+    int32 vScaleID;
+    int32 vRotationID;
+    int32 wRotationID;
+};
+
+// MATERIALS
+enum <uint32> MaterialTypes
+{
+    MTL_UNKNOWN,
+    MTL_STANDARD,
+    MTL_MULTI,
+    MTL_2SIDED
+};
+
+enum <uint32> MaterialFlags
+{
+    MTLFLAG_WIRE            = 0x0001,
+    MTLFLAG_2SIDED          = 0x0002,
+    MTLFLAG_FACEMAP         = 0x0004,
+    MTLFLAG_FACETED         = 0x0008,
+    MTLFLAG_ADDITIVE        = 0x0010,
+    MTLFLAG_SUBSTRACTIVE    = 0x0020,
+    MTLFLAG_CRYSHADER       = 0x0040,
+    MTLFLAG_PHYSICALIZE     = 0x0080,
+    MTLFLAG_ADDITIVEDECAL   = 0x0100,
+    MTLFLAG_USEGLOSSINESS   = 0x0200
+};
+
+string materialFlagsInComment( uint32 flags )
+{
+    local string temp;
+    if( flags & MTLFLAG_WIRE ) temp += "WIRE    ";
+    if( flags & MTLFLAG_2SIDED ) temp += "2SIDED    ";
+    if( flags & MTLFLAG_FACEMAP ) temp += "FACEMAP    ";
+    if( flags & MTLFLAG_FACETED ) temp += "FACETED    ";
+    if( flags & MTLFLAG_ADDITIVE ) temp += "ADDITIVE    ";
+    if( flags & MTLFLAG_SUBSTRACTIVE ) temp += "SUBSTRACTIVE    ";
+    if( flags & MTLFLAG_CRYSHADER ) temp += "CRYSHADER    ";
+    if( flags & MTLFLAG_PHYSICALIZE ) temp += "PHYSICALIZE    ";
+    if( flags & MTLFLAG_ADDITIVEDECAL ) temp += "ADDITIVEDECAL    ";
+    if( flags & MTLFLAG_USEGLOSSINESS ) temp += "USEGLOSSINESS    ";
+    
+    return temp;
+};
+
+// MORPH
+struct MORPH_TARGET {
+    uint32 vertexID;
+    VECTOR3 position;
+};
+
+// LIGHT
+enum <uint32> LightTypes
+{
+    LT_OMNI,
+    LT_SPOT,
+    LT_DIRECT,
+    LT_AMBIENT
+};
+
+// ENTITIES
+struct RANGE_ENTITY {
+    char name[32];
+    uint32 start;
+    uint32 end;
+};
+
+struct BONE_ENTITY {
+    uint32 boneID;
+    int32 parentID;
+    uint32 numChildrens;
+    uint32 controllerID; //Id of controller (CRC32 from name of bone)
+    char property[32];
+
+    BONE_PHYSICS phys;
+};
+
+struct NAME_ENTITY {
+    string name;
+};
+
+struct MATERIAL_ENTITY {
+    char name[64];
+    ubyte isStandardMaterial;
+    //uint32 isNewMaterial; //?
+    RGB diffuse;
+    RGB specular;
+    RGB ambient;
+    float specularLevel;
+    float specularShininess;
+    float selfIllumination;
+    float opacity;
+    float alphaReference; //Alpha test
+    float temp[8];
+    MaterialFlags flags;
+    
+    TEXTURE_MAP ambientMap(3);
+    TEXTURE_MAP diffuseMap(3);
+    TEXTURE_MAP opacityMap(3);
+    TEXTURE_MAP bumpMap(3);
+    TEXTURE_MAP specularMap(3);
+    TEXTURE_MAP glossMap(3);
+    TEXTURE_MAP detailMap(3);
+    TEXTURE_MAP environmentMap(3);
+    TEXTURE_MAP subsurfMap(3);
+    TEXTURE_MAP displacementMap(3);
+
+    float bounce;
+    float staticFriction;
+    float slidingFriction;
+    uint32 gameID;
+
+
+    uint32 numChildrens;
+    if( numChildrens ) uint32 childrenID[numChildrens];
+
+    
+};
+
+// CHUNKS
+struct ANY {
+    CHUNK_HEADER chunkHeader;
+    uint32 numAttributes;
+    CustomAttribute attribute[numAttributes];
+};
+
+struct MESH {
+    local int chunkVersion = ReadUInt(startof(this) + 4);
+    switch( chunkVersion )
+    {
+        case 0x0623:
+            ChunkTypes type <format=hex>;
+            uint32 version <format=hex>;
+            uint32 geomID;
+            byte hasBoneInfo;
+            byte hasVertexColor; if(hasVertexColor) Printf("Mesh at 0x%x has vertex color.\n", startof(this));
+            uint16 inWorldSpace;
+            uint32 numVertices;
+            uint32 numTVerts;
+            uint32 numFaces;
+            uint32 materialID;
+            uint32 propStringLength;
+            break;
+
+        case 0x0744:
+            CHUNK_HEADER chunkHeader;
+            byte hasBoneInfo;
+            byte hasVertexColor; if(hasVertexColor) Printf("Mesh at 0x%x has vertex color.\n", startof(this));
+            uint16 unknown;
+            uint32 numVertices;
+            uint32 numTVerts;
+            uint32 numFaces;
+            int32 vertexAnimID;
+            break;
+
+    }
+
+    VERTEX vertex[numVertices];
+    FACE face[numFaces];
+    if( numTVerts )
+    {
+        TVERT tvert[numTVerts];
+        TVFACE tvface[numFaces];
+    }
+    if( hasBoneInfo )
+        BONE_INFO boneInfo[numVertices] <optimize=false>;
+    if( hasVertexColor )
+        RGB vertexColor[numVertices];
+};
+
+struct HELPER {
+    local int chunkVersion = ReadUInt(startof(this) + 4);
+    switch( chunkVersion )
+    {
+        case 0x0362:
+            ChunkTypes type <format=hex>;
+            uint32 version <format=hex>;
+            char name[64];
+            HelperTypes type;
+            VECTOR3 position;
+            MATRIX44 transformMatrix;
+            break;
+
+        case 0x0744:
+            CHUNK_HEADER chunkHeader;
+            HelperTypes type;
+            VECTOR3 scale;
+            break;
+    }
+};
+
+struct VERTEX_ANIM {
+    local int chunkVersion = ReadUInt(startof(this) + 4);
+    switch( chunkVersion )
+    {
+        case 0x0201:
+            ChunkTypes type <format=hex>;
+            uint32 version <format=hex>;
+            uint32 inWorldSpace;
+            uint32 geometryID;
+            uint32 numKeys;
+            uint32 numVertices;
+            uint32 numFaces;
+            float secsPerTick;
+            float ticksPerFrame;
+            break;
+        case 0x0744:
+            CHUNK_HEADER chunkHeader;
+            uint32 geometryID;
+            uint32 numKeys;
+            uint32 numVertices;
+            uint32 numFaces;
+            break;
+        //TODO: keys, faces, verts parse
+            
+    }
+};
+
+struct BONE_ANIM {
+    CHUNK_HEADER chunkHeader;
+    uint32 numBones;
+    if( numBones ) BONE_ENTITY boneEntity[numBones];
+};
+
+
+struct GEOM_NAMES_LIST {
+    ChunkTypes type <format=hex>;
+    uint32 version <format=hex>;
+    uint32 numNames;
+    if( numNames )
+        NAME_ENTITY name[numNames] <optimize=false>;
+};
+
+struct BONE_NAMES_LIST {
+    local int chunkVersion = ReadUInt(startof(this) + 4);
+    switch( chunkVersion )
+    {
+        case 0x0201:
+            ChunkTypes type <format=hex>;
+            uint32 version <format=hex>;
+            break;
+        case 0x0744:
+            CHUNK_HEADER chunkHeader;
+            break;
+
+    }
+    
+    uint32 numNames;
+    if( numNames )
+        NAME_ENTITY name[numNames] <optimize=false>;
+};
+
+struct MATERIALS_LIST {
+    ChunkTypes type <format=hex>;
+    uint32 version <format=hex>;
+    uint32 numMaterials;
+    if( numMaterials )
+        MATERIAL_ENTITY material[numMaterials] <optimize=false>;
+};
+
+struct MRM {
+    ChunkTypes type <format=hex>;
+    uint32 version <format=hex>;
+    uint32 geomID;
+};
+
+struct SCENE_PROPS {
+    local int chunkVersion = ReadUInt(startof(this) + 4);
+    switch( chunkVersion )
+    {
+        case 0x0201:
+            ChunkTypes type <format=hex>;
+            uint32 version <format=hex>;
+            uint32 numProps;
+            break;
+        case 0x0744:
+            CHUNK_HEADER chunkHeader;
+            uint32 numProps;
+            break;
+    }
+};
+
+struct LIGHT {
+    local int chunkVersion = ReadUInt(startof(this) + 4);
+    switch( chunkVersion )
+    {
+        case 0x0351:
+            ChunkTypes type <format=hex>;
+            uint32 version <format=hex>;
+            char name[64];
+            LightTypes type;
+            byte isActivated; //Light is on
+            VECTOR3 position;
+            MATRIX44 transform;
+            RGB color;
+            float intens;
+            float hotsize;
+            float fallsize;
+            uint32 useNearAtten;
+            float nearAttenStart;
+            float nearAttenEnd;
+            uint32 useAtten;
+            float attenStart;
+            float attenEnd;
+            uint32 shadow;
+            break;
+        case 0x0744:
+            CHUNK_HEADER chunkHeader;
+            LightTypes type;
+            byte isActivated;
+            RGB color;
+            float intens;
+            float hotsize;
+            float fallsize;
+            byte useNearAtten;
+            RGB nearAttenColor;
+            float nearAttenStart;
+            float nearAttenEnd;
+            byte useAtten;
+            RGB farAttenColor;
+            float attenStart;
+            float attenEnd;
+            uint32 shadow;
+            VECTOR3 direction;
+            char lightImage[256];
+        
+    }
+};
+
+struct PATCH_MESH {
+    //Not implemented
+};
+
+struct NODE {
+    CHUNK_HEADER chunkHeader;
+    char name[64];
+    int32 objectID;
+    int32 parentID;
+    int32 numChildrens;
+    uint32 materialID;
+    uint16 isGroupHead;
+    uint16 isGroupMember;
+    
+    MATRIX44 transform;
+    VECTOR3 position;
+    QUAT_WXYZ rotation;
+    VECTOR3 scale;
+
+    int32 positionControllerID; //Chunk IDs
+    int32 rotationControllerID;
+    int32 scaleControllerID;
+    int32 propStringLength;
+};
+
+struct MATERIAL {
+    CHUNK_HEADER chunkHeader;
+    char name[64];
+    if( chunkHeader.version == 0x0746 )
+    {
+        char reserved[60];
+        float alphaTest;
+    }
+
+    MaterialTypes type;
+
+    RGB diffuse;
+    RGB specular;
+    RGB ambient;
+    RGB unknown;
+
+    if( chunkHeader.version != 0x0744 )
+    {
+        float specularLevel;
+        float specularShininess;
+        float selfIllumination;
+        float opacity;
+    }
+    
+    switch( chunkHeader.version )
+    {
+        case 0x0744:
+            TEXTURE_MAP diffuseMap(1);
+            TEXTURE_MAP opacityMap(1);
+            TEXTURE_MAP bumpMap(1);
+            break;
+
+        case 0x0745:
+            TEXTURE_MAP ambientMap(2);
+            TEXTURE_MAP diffuseMap(2);
+            TEXTURE_MAP specularMap(2);
+            TEXTURE_MAP opacityMap(2);
+            TEXTURE_MAP bumpMap(2);
+            TEXTURE_MAP glossMap(2);
+            TEXTURE_MAP cubeMap(2);
+            TEXTURE_MAP reflectionMap(2);
+            TEXTURE_MAP subsurfMap(2);
+            TEXTURE_MAP detailMap(2);
+            break;
+
+        case 0x0746:
+            TEXTURE_MAP ambientMap(3);
+            TEXTURE_MAP diffuseMap(3);
+            TEXTURE_MAP specularMap(3);
+            TEXTURE_MAP opacityMap(3);
+            TEXTURE_MAP bumpMap(3);
+            TEXTURE_MAP glossMap(3);
+            TEXTURE_MAP filterMap(3); //Detail texture settings
+            TEXTURE_MAP reflectionMap(3);
+            TEXTURE_MAP subsurfMap(3);
+            TEXTURE_MAP detailMap(3);
+            break;
+    }
+    if( chunkHeader.version != 0x0744 ) uint32 flags <comment=materialFlagsInComment>;
+
+    float bounce;
+    float staticFriction;
+    float slidingFriction;
+
+    if( type == MTL_MULTI )
+    {
+        uint32 numChildrens;
+        if( numChildrens ) uint32 childrenID[numChildrens];
+    }
+};
+
+struct CONTROLLER {
+    local int chunkVersion = ReadUInt(startof(this) + 4);
+    if( chunkVersion  == 0x0826 )
+    {
+        CHUNK_HEADER chunkHeader;
+        ControllerTypes type;
+        uint32 numKeys;
+        ControllerFlags flags;
+        uint32 controllerID <format=hex>; // unique generated in exporter id based on crc32 of bone name
+        switch( type )
+        {
+            case CTRL_CRYBONE:
+                KEY_CRYBONE key[numKeys];
+                break;
+            case CTRL_LINEAR_F1:
+                KEY_LINEAR_F1 key[numKeys];
+                break;
+            case CTRL_LINEAR_F3:
+                KEY_LINEAR_F3 key[numKeys];
+                break;
+            case CTRL_LINEAR_Q:
+                KEY_LINEAR_Q key[numKeys];
+                break;
+            case CTRL_BEZIER_F1:
+                KEY_BEZIER_F1 key[numKeys];
+                break;
+            case CTRL_BEZIER_F3:
+                KEY_BEZIER_F3 key[numKeys];
+                break;
+            case CTRL_BEZIER_Q:
+                KEY_BEZIER_Q key[numKeys];
+                break;
+            case CTRL_TCB_F1:
+                KEY_TCB_F1 key[numKeys];
+                break;
+            case CTRL_TCB_F3:
+                KEY_TCB_F3 key[numKeys];
+                break;
+            case CTRL_TCB_Q:
+                KEY_TCB_Q key[numKeys];
+                break;
+            case CTRL_BSPLINE_OPEN_B2:
+                BSPLINE_DATA key[numKeys];
+                break;
+            case CTRL_BSPLINE_OPEN_B1:
+                BSPLINE_DATA key[numKeys];
+                break;
+            case CTRL_BSPLINE_CLOSED_B2:
+                BSPLINE_DATA key[numKeys];
+                break;
+            case CTRL_BSPLINE_CLOSED_B1:
+                BSPLINE_DATA key[numKeys];
+                break;
+            case CTRL_CONSTANT:
+                //KEY_CONSTANT key[numKeys];
+                break;
+        }
+    }
+    else
+    {
+        uint32 numKeys;
+        uint32 controllerID <format=hex>;
+        KEY_CRYBONE_LOG key[numKeys];
+    }
+        
+};
+
+struct TIMING {
+    CHUNK_HEADER chunkHeader;
+    float secsPerTicks;
+    uint32 ticksPerFrame;
+    RANGE_ENTITY globalRange; //Covers all of the time ranges
+    uint32 numSubRanges;
+    if( numSubRanges ) RANGE_ENTITY subRange[numSubRanges];
+};
+
+struct BONE_MESH {
+
+};
+
+struct BONE_LIGHT_BINDING {
+    uint32 numBindings;
+    BONE_LIGHT_BIND boneLightBind[numBindings]; 
+};
+
+struct MESH_MORPH_TARGET {
+    uint32 meshID; //Chunk ID
+    uint32 numMorphedVerts;
+    MORPH_TARGET target[numMorphedVerts];
+    string name;
+};
+
+struct BONE_INITIAL_POS {
+    uint32 meshID; //Chunk ID
+    uint32 numBones;
+    BONE_INITIAL_MATRIX initialMatrix[numBones];
+};
+
+struct SOURCE_INFO {
+    string sourceFile;
+    string timestamp;
+    string machineAndUser;
+};
+
+
+// PARSING
+HEADER header;
+FSeek(header.chunkTableOffset);
+CHUNK_TABLE chunkTable;
+
+local int i;
+for( i = 0; i < chunkTable.numChunks; i++ )
+{
+    FSeek( chunkTable.chunkHeader[i].offset );
+    switch( chunkTable.chunkHeader[i].type )
+    {
+        case ChunkType_ANY:
+            Printf("ChunkType_ANY at offset: 0x%x\n", chunkTable.chunkHeader[i].offset );
+            break;
+        case ChunkType_Mesh:
+            MESH mesh;
+            break;
+        case ChunkType_Helper:
+            HELPER helper;
+            break;
+        case ChunkType_VertAnim:
+            VERTEX_ANIM vertAnim;
+            break;
+        case ChunkType_BoneAnim:
+            BONE_ANIM boneAnim;
+            break;
+        case ChunkType_GeomNameList:
+            GEOM_NAMES_LIST geomNameList;
+            break;
+        case ChunkType_BoneNameList:
+            BONE_NAMES_LIST boneNameList;
+            break;
+        case ChunkType_MaterialsList:
+            MATERIALS_LIST materialsList;
+            break;
+        case ChunkType_MRM:
+            MRM mrm;
+            break;
+        case ChunkType_SceneProps:
+            SCENE_PROPS sceneProps;
+            break;
+        case ChunkType_Light:
+            LIGHT light;
+            break;
+        case ChunkType_PatchMesh:
+
+            break;
+        case ChunkType_Node:
+            NODE node;
+            break;
+        case ChunkType_Material:
+            MATERIAL material;
+            break;
+        case ChunkType_Controller:
+            CONTROLLER controller;
+            break;
+        case ChunkType_Timing:
+            TIMING timing;
+            break;
+        case ChunkType_BoneMesh:
+            MESH boneMesh;
+            break;
+        case ChunkType_BoneLightBinding:
+            BONE_LIGHT_BINDING boneLightBinding;
+            break;
+        case ChunkType_MeshMorphTarget:
+            MESH_MORPH_TARGET meshMorphTarget;
+            break;
+        case ChunkType_BoneInitialPos:
+            BONE_INITIAL_POS boneInitialPos;
+            break;
+        case ChunkType_SourceInfo:
+            SOURCE_INFO sourceInfo;
+            break;
+        default: Warning("Invalid ChunkType: 0x%x", chunkTable.chunkHeader[i].chunkType );
+            break;
+    }
+};

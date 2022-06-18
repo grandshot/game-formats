@@ -1,0 +1,79 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct TABLE {
+    uint16 unknown;
+    uint16 unknown;
+    uint32 offset;
+    uint16 id;
+    uint16 unknown;
+};
+
+struct TABLE2 {
+    uint16 unknown;
+    uint16 unknown;
+    uint16 unknown;
+    uint16 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+};
+
+string commentTABLE( TABLE &table ) {
+    local string temp = ReadString( data_header.stringOffset[table.id] );
+    return temp;
+};
+
+string commentTABLE2( TABLE2 &table2 ) {
+    local string temp = ReadString( data_header.stringOffset[table.id] );
+    return temp;
+};
+
+struct HEADER {
+    char sign[4];
+    uint32 dataHeaderSize;
+    uint32 dataHeaderSize;
+    uint32 dataSize;
+};
+
+struct DATA_HEADER {
+    uint32 offsetStrings;
+    uint32 numStrings;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 tablesOffset;
+    uint32 numTables;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 tables2Offset;
+    uint32 numTables2;
+    uint32 unknown;
+    uint32 unknown;
+
+    FSeek( offsetStrings );
+    uint32 stringOffset[ numStrings ] <format=hex>;
+
+};
+
+HEADER header;
+DATA_HEADER data_header;
+if( data_header.numTables )
+{
+    FSeek( data_header.tablesOffset );
+    TABLE table[ data_header.numTables ] <comment=commentTABLE>;
+}
+if( data_header.numTables2 )
+{
+    FSeek( data_header.tables2Offset );
+    TABLE2 table2[ data_header.numTables2 ];
+}

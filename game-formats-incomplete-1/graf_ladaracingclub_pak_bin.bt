@@ -1,0 +1,32 @@
+//------------------------------------------------
+//--- 010 Editor v10.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+string getName( uint offsetName )
+{
+    local string temp;
+    SPrintf( temp, "%s", ReadString( offsetName + 12 ) );
+    return temp;
+};
+
+struct HEADER
+{
+    byte sign[4];
+    uint32 sizeOfTables;
+    uint32 numTables;
+} header;
+
+struct TABLE
+{
+    uint32 offsetName <format=hex, comment=getName>;
+    uint32 offsetFile <format=hex>;
+    uint32 sizeFile;
+} table[ header.numTables];

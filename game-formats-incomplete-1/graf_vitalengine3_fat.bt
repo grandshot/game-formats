@@ -1,0 +1,84 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: graf_vitalengine3_fat
+//   Authors: grandshot
+//   Purpose: Defines a template for parsing Main.fat file
+//  Category: Game
+// File Mask: main.fat
+//------------------------------------------------
+struct ITEM {
+    uint32 id;
+    uint32 size_of_name;
+    if( size_of_name ) char name[size_of_name];
+};
+
+struct FILE {
+    uint32 id;
+    uint32 size_of_name;
+    if( size_of_name ) char name[size_of_name];
+    
+    uint32 id_of_folder;
+    ubyte id_of_grp;
+    uint32 offset <format=hex>;
+    uint32 size;
+
+    uint64 unknown;
+};
+
+struct HEADER {
+    uint32 length_of_info;
+    char info[length_of_info];
+    char unknown_bytes[4];
+    ubyte num_of_unknown;
+    uint16 unknown0[num_of_unknown];
+
+    uint16 num_of_grp;
+    if( num_of_grp )
+    {
+        struct {
+            ITEM first_grp;
+            uint16 unknown_after_first_grp;
+            ITEM grp[num_of_grp - 1] <optimize=false>;
+        } grp;
+    }
+    uint32 unknown_id;
+    uint32 unknown_id;
+    uint16 unknown;
+    uint16 unknown;
+    
+    uint16 unknown;
+    uint16 num_of_folders;
+    if( num_of_folders )
+    {
+        struct {
+            ITEM first_folder;
+            uint16 unknown_after_first_folder;
+            ITEM folder[num_of_folders - 1] <optimize=false>;
+        } folders;
+    }
+    uint32 unknown_id;
+    uint32 unknown_id;
+    uint16 unknown;
+    uint32 unknown;
+
+    uint32 unknown;
+    uint16 unknown;
+
+    uint16 unknown;
+    uint16 num_of_files;
+    if( num_of_files )
+    {
+        struct {
+            FILE first_file;
+            uint16 unknown_after_first_file;
+            FILE file[num_of_files - 1] <optimize=false>;
+        } files;
+    }
+    uint32 unknown_id;
+    uint32 unknown_id;
+    uint16 unknown;
+    uint16 unknown;
+};
+
+HEADER header;

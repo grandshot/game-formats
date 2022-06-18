@@ -1,0 +1,81 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct HEADER {
+    uint32 size;
+    char sign[8];
+    uint32 unknown;
+    uint32 width;
+    uint32 heigth;
+    float positionX;
+    float positionY;
+    float positionZ;
+    float unknown;
+    float unknown;
+    float unknown;
+    float unknown;
+    uint32 offset <format=hex>;
+    uint32 offset <format=hex>;
+    uint32 offset <format=hex>;
+    uint32 offset <format=hex>;
+    uint32 offset <format=hex>;
+    uint32 offset <format=hex>;
+    uint32 offset <format=hex>;
+};
+
+struct TABLE {
+    byte unknown[ header.offset[1] - header.offset[0] ];
+};
+
+struct TABLE1 {
+    uint16 id[ (header.offset[2] - header.offset[1]) / 2 ];
+};
+
+struct TABLE2 {
+    uint32 unknown[ (header.offset[3] - header.offset[2]) / 4 ];
+};
+
+struct TABLE3 {
+    uint32 unknown[ (header.offset[4] - header.offset[3]) / 4 ];
+}; 
+
+struct TABLE4 {
+    ubyte unknown[ (header.offset[5] - header.offset[4]) ];
+};
+
+struct TABLE5 {
+    ubyte unknown[ (header.offset[6] - header.offset[5]) ];
+};
+
+struct BUFFER {
+    float unknown;
+    float unknown;
+    float unknown;
+    float unknown;
+    uint16 unknown;
+    uint16 unknown;
+};
+
+struct TABLE6 {
+    BUFFER buffer[ (header.size - header.offset[6]) / 20 ];
+};
+
+HEADER header;
+if( header.offset[1] - header.offset[0] ) TABLE table;
+if( header.offset[2] - header.offset[1] ) TABLE1 table1;
+if( header.offset[3] - header.offset[2] ) TABLE2 table2;
+if( header.offset[4] - header.offset[3] ) TABLE3 table3;
+if( header.offset[5] - header.offset[4] ) TABLE4 table4;
+if( header.offset[6] - header.offset[5] ) TABLE5 table5;
+if( header.size - header.offset[6] ) TABLE6 table6;
+

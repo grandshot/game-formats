@@ -1,0 +1,49 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+#include "./game-formats/common.bt"
+
+struct HEADER {
+    uint32 type;
+    uint32 header_size;
+    uint32 unknown;
+    uint32 table_size;
+    float bbox_min[3];
+    float bbox_max[3];
+    
+};
+
+uint32 size_header( HEADER &header )
+{
+    return ReadUInt( startof(header) + 4 );
+};
+
+struct INFO {
+    uint32 num_unknown;
+    uint32 num_unknown;
+    uint32 num_unknown;
+    uint32 num_unknown;
+    uint32 num_unknown;
+};
+
+struct size_info( INFO &info )
+{
+    return ReadUInt( startof(parentof(info)) + 12 );
+};
+
+struct CHUNK {
+    HEADER header <size=size_header>;
+    INFO info;
+};
+
+CHUNK chunk;

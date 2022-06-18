@@ -1,0 +1,100 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct BBOX {
+    float min[3], max[3];
+};
+
+struct VECTOR4 {
+    float x, y, z, w;
+};
+
+struct MATRIX44 {
+    float row1[4];
+    float row2[4];
+    float row3[4];
+    float row4[4];
+};
+
+struct HEADER {
+    uint32 version;
+    uint32 uid;
+    uint32 numModels; //Nodes
+    uint32 offsetModels;
+    uint32 numLodInstances; //Lods
+    uint32 offsetLodInstances;
+    uint32 numSubModels; //Geomparts
+    uint32 offsetSubModels;
+    uint32 handle;
+    uint32 reserved;
+    uint32 offsetTextures;
+    uint32 offsetMaterials;
+    uint32 numFaces;
+    uint32 lengthFaces;
+    uint32 offsetFaces;
+    uint32 numVertexDecls;
+    uint32 offsetVertexDecls;
+
+};
+
+struct INSTANCE {
+    uint32 instancesOffset; //LOD offset
+    uint32 instancesCount; //LOD count
+    uint16 reserved[2];
+    uint32 flags;
+    uint32 mask;
+    uint32 extraData;
+};
+
+struct MODEL {
+    uint32 uid1;
+    uint32 uid2;
+    VECTOR4 scale;
+    uint16 bufferIndex;
+    uint16 bufferType;
+    uint32 flags;
+    uint32 reserved;
+
+    VECTOR4 unknown[8]; //bbox
+
+    // 7 lod instances
+    INSTANCE instance[7];
+};
+
+struct LOD {
+    uint32 subModelsOffset;
+    MATRIX44 transform;
+    uint16 unknown;
+    uint16 unknown;
+    uint16 unknown;
+    uint16 unknown;
+    uint16 reserved;
+}; //size 78
+
+struct SUBMODEL {
+    uint32 numIndexes;
+    uint32 offsetIndexes;
+    uint32 primitiveType;
+    uint32 numVertices;
+    uint32 offsetVertices; 
+    uint32 materialHandle;   
+};
+
+HEADER header;
+
+FSeek( header.offsetModels );
+MODEL model[header.numModels];
+FSeek( header.offsetLodInstances );
+LOD lod[header.numLodInstances];
+FSeek( header.offsetSubModels );
+SUBMODEL submodel[header.numSubModels];

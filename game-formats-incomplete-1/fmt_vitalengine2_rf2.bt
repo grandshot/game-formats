@@ -1,0 +1,369 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+//BitfieldDisablePadding();
+struct TVERT {
+    float u, v;
+};
+
+struct FACE {
+    uint16 a, b, c;
+};
+
+struct VECTOR3 {
+    float x, y, z;
+};
+
+struct RGB {
+    byte r, g, b;
+};
+
+struct QUAT {
+    float x, y, z, w;
+};
+
+struct PACKED_QUAT {
+    int16 x;
+    int16 y;
+    int16 z;
+};
+
+struct PACKED_VECTOR3 {
+    int16 x;
+    int16 y;
+    int16 z;
+};
+
+
+string unpackQuat( PACKED_QUAT &values )
+{
+    local float x, y, z, w;
+    
+    x = values.x * 0.000030518509;
+    y = values.y * 0.000030518509;
+    z = values.z * 0.000030518509;
+    w = (1.0 - (x * x)) - (y * y) - (z * z);
+    if( w <= 0 ) w = 0;
+    else w = Sqrt(w);
+    return Str("Quat %f %f %f %f", x, y, z, w);
+
+};
+
+string unpackVector3( PACKED_VECTOR3 &values )
+{
+    local int v1, v2, v3, v4, v5, v6, v8;
+    local uint v7, v9, v10, v11;
+    local float x, y, z;
+
+    v1 = values.x >> 10 & 0x1F;
+    if( v1 < 10 )
+        v2 = (values.x & 0x3FF) >> (10 - v1 & 0x1F);
+    else
+        v2 = (values.x & 0x3FF) << (-(10 - v1) & 0x1F);
+
+    if( v1 != 0 )
+        v2 |= 1 << values.x >> 10 & 0x1F;
+
+    if( values.x & 0x8000 ) v2 = -v2;
+
+
+    v3 = values.y >> 10 & 0x1F;
+    if( v3 < 10 )
+        v4 = (values.x & 0x3FF) >> (10 - v3 & 0x1F);
+    else
+        v4 = (values.x & 0x3FF) << (-(10 - v3) & 0x1F);
+
+    if( v3 != 0 )
+        v4 |= 1 << values.y >> 10 & 0x1F;
+
+    if( values.y >> 8 ) v4 = -v4;
+
+    v6 = values.y | values.z;
+    if( (v6 >> 10 & 0x1F) < 10 )
+        v8 = (v6 & 0x3FF) >> (10 - (v6 >> 10 & 0x1F) & 0x1F);
+    else
+        v8 = (v6 & 0x3FF) << (-(10 - (v6 >> 10 & 0x1F)) & 0x1F);
+
+    if( (v6 >> 10 & 0x1F) != 0 )
+        v8 |= 1 << (v6 >> 10 & 0x1F);
+
+    if( (byte)(v6 >> 8) < 0 ) v8 = -v8;
+
+    x = v2 * 0.001;
+    y = v4 * 0.001;
+    z = v8 * 0.001;
+
+    return Str("Vector3 %f %f %f", x, y, z);
+    
+};
+
+string unpackVector3_bak( PACKED_VECTOR3 &values )
+{
+    local string temp;
+    local uint16 v3, v8;
+    local uint32 v4, v5, v9, v10, v13, v14;
+    local int32 v6, v7, v11, v12, v15;
+    local float x, y, z;
+
+    v3 = values.y;
+    v4 = (unsigned int)(v3 >> 10) & 0x1F;
+    v5 = v3 & 0x3FF;
+    
+    if( (signed int)(10 - v4) <= 0 )
+        v6 = v5 << (v4 - 10);
+    else
+        v6 = v5 >> (10 - v4);
+    v7 = v6;
+
+    if( v4 )
+        v7 = (1 << v4) | 6;
+
+    if( values.y & 0x8000 ) v7 = -v7;
+    v8 = values.x;
+    v9 = (unsigned int)(v8 >> 10) & 0x1F;
+    v10 = v8 & 0x3FF;
+
+    if( (signed int)(10 - v9) <= 0 )
+        v11 = v10 << (v9 - 10);
+    else
+        v11 = v10 >> (10 - v9);
+    v12 = v11;
+
+    if( v9 )
+        v12 = (1 << v9) | v11;
+
+    if( (v8 & 0x8000u) != 0 ) v12 = -v12;
+    v13 = (unsigned int)(values.x >> 10) & 0x1F;
+    v14 = values.x & 0x3FF;
+
+    if( (signed int)(10 - v13) <= 0 )
+        v15 = v14 << (v13 - 10);
+    else
+        v15 = v14 >> (10 - v13);
+
+    if( v13 ) v15 |= 1 << 13;
+
+    if( ((values.x >> 8) & 0x80u) != 0 )
+        v15 = -v15;
+
+    x = v15 * 0.001;
+    y = v12 * 0.001;
+    z = v7 * 0.001;
+
+    SPrintf(temp, "Vector3 %f %f %f", x, y, z);
+
+    return temp;
+};
+
+typedef struct {
+    float row[4];
+} MATRIX44[4];
+
+typedef struct {
+    float row[3];
+} MATRIX43[3];
+
+struct BBOX {
+    VECTOR3 min;
+    VECTOR3 max;
+};
+
+struct ARRAY {
+    uint16 numItems;
+    uint16 numBits; //per item
+    
+    local uint arraySize, alignedSize;
+    arraySize = numItems * numBits + 8;
+    while( alignedSize <= arraySize ) alignedSize += 8;
+    struct {
+        local int i;
+        for( i = numItems; i; i-- ) uint64 item : numBits; //uint64 for item because numBits can be 48
+    } items;
+    if( (alignedSize - arraySize) > 0 ) uint64 padding : (alignedSize - arraySize);
+    ubyte numBitsKey : 8;
+    //uint64 mask : numBits; //not used?
+};
+
+struct TEST_ARRAY {
+    uint16 numItems;
+    ubyte numBits; //per item
+
+    local uint32 arraySize = numItems * numBits - numBits;
+    local uint32 numBytes;
+    if( arraySize % 8 ) numBytes = arraySize / 8;
+    else numBytes = arraySize / 8;
+
+    struct {
+        local int i;
+        for( i = numItems - 1; i; i-- ) uint64 item : numBits;
+    } items;
+
+    uint64 numBitsKey : 8;
+    uint64 mask : numBits;
+};
+
+
+
+struct PACKED_ANIM( int itemType ) {
+    uint32 numPackedItems;
+    if( numPackedItems ) 
+        if( itemType == 0 ) PACKED_VECTOR3 position[numPackedItems] <read=unpackVector3_bak>;
+        else PACKED_QUAT rotation[numPackedItems] <read=unpackQuat>;
+    TEST_ARRAY packedIDs;
+    TEST_ARRAY originalIDs;
+    uint16 numFrames;
+};
+
+struct NAME {
+    ubyte length;
+    if( length ) char name[length];
+};
+
+struct HEADER {
+    uint16 signature;
+    ubyte version;
+    ubyte numLods;
+    uint16 numFrames;
+    uint32 offsetMaterials;
+    uint32 offsetBones;
+    uint32 offsetGeomNodes;
+    uint32 offsetMovementVectors;
+    uint32 offsetHitMeshes;
+    uint32 offsetBoneGroups;
+    uint32 offsetCollisionBoxes;
+    BBOX bbox;
+    float cameraFOV;
+    uint32 flags;
+    float lodDistances[6];
+};
+
+struct MATERIALS {
+    uint16 numMaterials;
+    if( numMaterials )
+        NAME material[numMaterials] <optimize=false>;
+};
+
+struct BONE {
+    char name[20];
+    byte parentID;
+    byte groupID;
+    byte rootGroupID;
+    uint32 packedAnimSize;
+    if( packedAnimSize )
+    {
+        FSkip(packedAnimSize);
+        //PACKED_ANIM packedVectors(0);
+        //PACKED_ANIM packedQuats(1);
+    };
+
+};
+
+struct BONE_INITIAL_POS {
+    MATRIX44 transform;
+    MATRIX44 inversedTransform;
+};
+
+struct BONE_SIMPLIFICATION_MAP {
+    byte id[6];
+};
+
+struct BONES {
+    ubyte numBones;
+    if( numBones) {
+        BONE bone [numBones] <optimize=false>;
+
+        BONE_INITIAL_POS initialPosition[numBones];
+        BONE_SIMPLIFICATION_MAP simplificationMap[numBones];
+    }
+};
+
+struct VERTEX( int numWeights, int numTVerts ) {
+    
+    VECTOR3 position;
+    ubyte paletteIDs[4];
+    if( numWeights ) float weight[numWeights];
+    VECTOR3 normal;
+    if( numTVerts ) TVERT tvert[numTVerts];
+};
+
+struct GEOMPART( int numWeights, int numTVerts ) {
+    int16 materialID;
+    int16 detailMaterialID;
+    byte detailOpacity;
+    byte miniRangeID;
+    uint16 numVertices;
+    uint16 numRealVertices;
+    uint16 numFaces;
+    ubyte bonePaletteSize;
+    ubyte bonePallete[25];
+    uint32 usedMask;
+
+    if( numFaces ) FACE face[numFaces];
+
+    if( numRealVertices ) {
+        VERTEX vertex( numWeights, numTVerts )[numRealVertices] <optimize=false>;
+
+        if( detailMaterialID >= 0 ) TVERT tvertDetail[numRealVertices];
+    }
+};
+
+struct GEOMNODES {
+    uint32 blockSize;
+
+    uint16 numGeomParts <comment="Unknown">;
+    uint16 numGeomParts <comment="Unknown">;
+    uint16 numGeomParts <comment="Unknown">;
+    uint16 numGeomParts <comment="Normal, uv channel">;
+    uint16 numGeomParts <comment="Normal, 2 uv channel">;
+    uint16 numGeomParts <comment="Normal, Weight, uv channel">;
+    uint16 numGeomParts <comment="Normal, Weight, 2 uv channel">;
+    uint16 numGeomParts <comment="Normal, 2 Weight, uv channel">;
+    uint16 numGeomParts <comment="Normal, 2 Weight, 2 uv channel">;
+    uint16 numLods;
+    uint16 numLodsSkinned;
+
+    if( numGeomParts[3] )
+        struct {
+            GEOMPART geompart( 0, 1 )[numGeomParts[3]];
+        } numGeomParts0 <name="GeomParts: Normal, uv channel">;
+
+    if( numGeomParts[4] )
+        struct {
+            GEOMPART geompart( 0, 2 )[numGeomParts[4]];
+        } geomParts1 <name="GeomParts: Normal, 2 uv channel">;
+
+    if( numGeomParts[5] )
+        struct {
+            GEOMPART geompart( 1, 1 )[numGeomParts[5]];
+        } geomParts2 <name="GeomParts: Normal, Weight, uv channel">;
+
+    if( numGeomParts[6] )
+        struct {
+            GEOMPART geompart( 1, 2 )[numGeomParts[6]];
+        } geomParts3 <name="GeomParts: Normal, Weight, 2 uv channel">;
+
+    if( numGeomParts[7] )
+        struct {
+            GEOMPART geompart( 2, 1 )[numGeomParts[7]];
+        } geomParts3 <name="Normal, 2 Weight, uv channel">;
+
+    if( numGeomParts[8] )
+        struct {
+            GEOMPART geompart( 2, 2 )[numGeomParts[8]];
+        } geomParts3 <name="Normal, 2 Weight, 2 uv channel">;
+    
+};
+
+HEADER header;
+if( header.offsetMaterials ) MATERIALS materials;
+if( header.offsetBones ) BONES bones;
+if( header.offsetGeomNodes ) GEOMNODES geomNodes;

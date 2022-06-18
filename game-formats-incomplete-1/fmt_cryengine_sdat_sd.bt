@@ -1,0 +1,144 @@
+//------------------------------------------------
+//--- 010 Editor v9.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct HEADER {
+    char signature[4];
+    int32 unknown;
+    int32 unknown;
+    uint16 id;
+    uint16 numShoreFaces; //shore indices count / 3
+    uint32 numShoreVerts; //shore vertices
+    uint32 numBrushes;
+    uint16 numVegetations;
+    uint16 unknown;
+    uint32 unknown;
+    struct {
+        float min;
+        float max;
+    } bounds [3];
+};
+
+struct MATRIX {
+    float row1[4];
+    float row2[4];
+    float row3[4];
+};
+
+struct BRUSH {
+    uint32 unknown;
+    uint32 brushId;
+    uint32 unknown;
+    uint32 flags;
+
+    MATRIX transform;
+
+    float unknown;
+    float unknown;
+};
+
+struct HEIGHTMAP {
+    
+    uint16 unknown <format=binary>;
+    uint16 height;
+    
+    if ( header.unknown[1] != 19 )
+        uint32 unknown[2];
+    uint32 hinfo;
+};
+
+string heightCOMMENT ( HEIGHTMAP &h ) 
+{
+    local string temp = "";
+    SPrintf(temp, "z: %f, SurfId: %d;", (h.height >> 8) + ( (h.height & 0xFF) / 255.0), ( (h.hinfo & 0xFF) << 3 ) >> 5 );
+    return temp;
+};
+
+struct VEGETATION {
+    uint32 vegbankId;
+    float x;
+    float y;
+    float z;
+    float size;
+    ubyte brightness;
+    ubyte angle;
+    byte unknown[2];
+};
+
+struct FACES {
+    uint16 a;
+    uint16 b;
+    uint16 c;
+};
+
+struct VERTEX {
+    float x;
+    float y;
+    float z;
+    float u;
+    float v;
+    ubyte unknownRGBA[4];
+};
+
+struct DXT (int height, int width)
+{
+    local int temp;
+    local float pixels = ((height / 2) + (width / 2)) * 4;
+    do
+    {
+        temp = (int) pixels;
+        if( pixels == 0.5 ) temp = 1;
+        struct
+        {
+            uint32 rgba[temp];
+        } mipMap;
+
+        pixels /= 2.0;
+    } while( pixels >= 0.5 );
+};
+
+struct COVER {
+    byte c[2560];
+    //DXT dxt(65, 65);
+};
+
+struct LIGHTMAP {
+    uint32 height;
+    uint32 width;
+
+    DXT dxt (height, width);
+};
+
+
+HEADER header;
+if( header.numBrushes )
+    BRUSH brush[header.numBrushes];
+
+if ( header.unknown[1] == 19 ) 
+    HEIGHTMAP heightmap[33*33] <comment=heightCOMMENT, optimize=true>;
+
+else 
+{
+    FSkip(8);
+    HEIGHTMAP heightmap[65*65] <comment=heightCOMMENT, optimize=true>;
+}
+
+if( header.numVegetations )
+    VEGETATION vegetation[header.numVegetations];
+COVER cover;
+
+if( header.numShoreFaces )
+    FACES shoreFaces[header.numShoreFaces / 3];
+
+if( header.numShoreVerts )
+    VERTEX shoreVertices[header.numShoreVerts];
+
+LIGHTMAP lightmap;

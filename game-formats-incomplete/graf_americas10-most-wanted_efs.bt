@@ -1,0 +1,36 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: graf_americas10-most-wanted_efs.bt
+//   Authors: grandshot
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct HEADER {
+    char signature[4];
+    uint32 data_offset;
+    uint32 num_files;
+    uint32 unknown;
+};
+
+struct ENTRY {
+    uint32 name_offset <comment=name_comment>;
+    uint32 file_offset;
+    uint32 compressed_size;
+    uint32 uncompressed_size;
+    uint32 unknown;
+};
+
+string name_comment( uint32 name_offset )
+    return ReadString( name_offset );
+
+HEADER header;
+if( header.num_files )
+    struct TABLE {
+        ENTRY entry[header.num_files] <optimize=false>;
+    } table;

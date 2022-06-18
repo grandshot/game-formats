@@ -1,0 +1,42 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: graf_captain-blood_pkx.bt
+//   Authors: grandshot
+//   Version: 1.0
+//   Purpose: A template for parsing Captain Blood PKX packages
+//  Category: Game
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+// Files inside package is compressed by custom algo
+
+BigEndian();
+
+struct HEADER {
+    char signature[4];
+    uint32 num_entries;
+    uint32 num_offsets;
+};
+
+struct ENTRY {
+    uint32 name_offset;
+    uint32 name_hash;
+    uint32 name_length;
+    uint32 offset;
+    uint32 size;
+    uint32 size_compressed;
+    uint32 unknown;
+};
+
+HEADER header;
+if( header.num_offsets )
+    struct OFFSETS {
+        uint32 offset[header.num_offsets + 1];
+    } offsets;
+if( header.num_entries )
+    struct TABLE {
+        ENTRY entry[header.num_entries] <optimize=false>;
+    } table;

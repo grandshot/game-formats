@@ -1,0 +1,228 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+BigEndian();
+
+struct HEADER;
+
+int Align( int size )
+{
+    local int temp;
+    do
+        temp += 2048;
+    while( temp < size );
+    return temp;
+};
+
+struct COLOR {
+    ubyte r;
+    ubyte g;
+    ubyte b;
+    ubyte a;
+};
+
+struct VECTOR2 {
+    float x;
+    float y;
+};
+
+struct VECTOR3 {
+    float x;
+    float y;
+    float z;
+};
+
+struct BLENDWEIGHT {
+    uint16 v0;
+    uint16 v1;
+};
+
+struct BBOX {
+    VECTOR3 min;
+    int32 unknown;
+    VECTOR3 max;
+    int32 unknown;
+};
+
+struct BBOXUV {
+    VECTOR2 min;
+    VECTOR2 max;
+};
+
+struct FACE {
+    uint16 a;
+    uint16 b;
+    uint16 c;
+};
+
+struct FACES {
+    FACE face[table.numFaces / 3];
+};
+
+int sizeFACES( FACES &faces )
+{
+    return table.facesBlockSizeAligned;
+};
+
+string unpackBLENDWEIGHT( BLENDWEIGHT &b )
+{
+    local string temp;
+    
+    //SPrintf(temp, "u:%f v:%f", (b.v0 / 65536.0) * 25.0 , (b.v1 / 65536.0) * 25.0); (b.v1 * 0.000366216525) * 0.00999999978) 765.005859
+    SPrintf(temp, "v0: %f v1: %f", b.v0 * 0.000366216525,  (b.v1 * 0.000366216525) * 0.00999999978);
+    return temp;
+};
+
+struct VERTEX {
+    VECTOR3 position;
+    COLOR packedNormal;
+    COLOR packedTangent;
+    COLOR packedBinormal;
+    BLENDWEIGHT packedUV  <comment=unpackBLENDWEIGHT>;
+    BLENDWEIGHT packedWeight  <comment=unpackBLENDWEIGHT>;
+};
+
+struct VERTICES {
+    VERTEX vertex[table.numVertices];
+};
+
+int sizeVERTICES( VERTICES &vertices )
+{
+    return table.verticesBlockSizeAligned;
+};
+
+struct IDS {
+    uint32 id[table.numIds];
+};
+
+int sizeIDS( IDS &ids )
+{
+    return table.idsBlockSizeAligned;
+};
+
+string absOffset( int offset )
+{
+    local string temp;
+    local int val = offset + 820;
+    SPrintf(temp, "Absolute: %d (%xh)", val, val);
+    return temp;
+};
+
+struct TABLE {
+    int32 unknown;
+    int32 unknown;
+    uint32 unknownOffset <comment=absOffset>; // After Table2
+    uint32 unknownOffset <comment=absOffset>;
+    uint32 unknownOffset <comment=absOffset>;
+    uint32 buffersOffset <comment=absOffset>;
+    uint32 unknownCount;
+    uint32 unknownOffset <comment=absOffset>;
+    uint32 unknownCount;
+    uint32 unknownOffset <comment=absOffset>;
+    uint32 unknownCount;
+    uint32 unknownOffset <comment=absOffset>;
+    int32 unknown;
+    int32 unknown;
+    uint32 unknownOffset <comment=absOffset>;
+    uint32 unknownCount;
+    uint32 unknownOffset <comment=absOffset>;
+    uint32 unknownCount;
+    uint32 unknownOffset <comment=absOffset>;
+    uint32 unknownCount;
+    uint32 unknownOffset <comment=absOffset>;
+    uint32 unknownCount;
+    uint32 unknownOffset <comment=absOffset>;
+    uint32 unknownCount;
+    uint32 unknownOffset <comment=absOffset>;
+    int32 unknown;
+    uint32 unknownCount;
+    uint32 unknownOffset <comment=absOffset>;
+    uint32 unknownCount;
+    uint32 unknownOffset <comment=absOffset>;
+    uint32 unknownCount;
+    uint32 unknownOffset <comment=absOffset>;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 facesBlockSize;
+    int32 verticesBlockSize;
+    int32 idsBlockSize;
+    int32 numFaces; //x3 VertexId
+    int32 numVertices;
+    int32 numIds; //same as vertices count
+    int32 facesBlockSizeAligned;
+    int32 verticesBlockSizeAligned; //Aligned by 2048
+    int32 idsBlockSizeAligned;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+};
+
+struct TABLE2 {
+    int32 unknown[128] <optimize=false>;
+};
+
+struct NAME {
+    uint32 hash;
+    uint32 nameSize;
+    if( nameSize )
+        string name;
+};
+
+struct NAMES {
+
+    do {
+        NAME name <optimize=false>;
+    } while( name.hash != 0 ); //crutch
+};
+
+int sizeNAMES( NAMES &names )
+{
+    return header.namesBlockSizeAligned; //by 128, but not exactly
+};
+
+struct HEADER {
+    char sign[4];
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    uint32 namesBlockSizeAligned;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    BBOX bbox;
+    VECTOR2 unknown_float[2]; //uv bbox?
+} header;
+
+TABLE table;
+TABLE2 table2; 
+
+NAMES names <size=sizeNAMES>;
+
+FSeek( 820 + table.buffersOffset );
+
+FACES faces <size=sizeFACES>;
+
+VERTICES vertices <size=sizeVERTICES>;
+
+if( table.numIds )
+    IDS ids <size=sizeIDS>;

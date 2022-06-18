@@ -1,0 +1,20 @@
+//------------------------------------------------
+//--- 010 Editor v9.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+local int count = FileSize() / 132;
+
+if( count )
+    struct BRUSH {
+        char xbg_path[124];
+        ubyte unknown[4]<format=hex>;
+        uint32 crc<format=hex>;
+    } brushInfo[count];

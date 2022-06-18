@@ -1,0 +1,30 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct HEADER {
+    int16 flag; // 1 for ts8 and 0 for ts4
+    uint16 numInfo; //palette ids??
+    uint32 numTables; //palettes?
+};
+
+struct INFO {
+    uint16 tableId[4]; // sometimes can be biggest then numTables. Some bits interprets as flags? 
+};
+
+struct TABLE {
+    if( header.flag ) ubyte value[64]; //64 bytes table for ts8
+    else ubyte value[32]; //and 32 for ts4
+};
+
+HEADER header;
+INFO info[header.numInfo];
+TABLE table[header.numTables];

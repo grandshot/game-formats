@@ -1,0 +1,311 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct T3DVECTOR {
+    float x;
+    float y;
+    float z;
+};
+
+struct TQUAT {
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct TFACE {
+    uint16 a;
+    uint16 b;
+    uint16 c;
+};
+
+struct T3DBOX {
+    T3DVECTOR min;
+    T3DVECTOR max;
+};
+
+struct TAnimKey {
+    T3DVECTOR pos;
+    TQUAT rot;
+};
+
+struct TRGBCOLOR {
+    ubyte a;
+    ubyte r;
+    ubyte g;
+    ubyte b;
+};
+
+struct THitMesh {
+    byte Code;
+    uint16 boneIndex;
+    uint16 nfaces;
+    uint16 nvertices;
+    TFACE face[nfaces];
+    T3DVECTOR vertex[nvertices];
+};
+
+struct TColBox {
+    T3DVECTOR size;
+    TAnimKey Animation[RF2Header.framescount];
+};
+
+struct TDrawStreamItem_MatrixPalette {
+    int16 MaterialId;
+    uint16 DetailMaterialId;
+    ubyte DetailOpacity;
+    ubyte MiniRangeId;
+    uint16 nVertices;
+    uint16 RealnVertices;
+    uint16 nFaces;
+    ubyte MatrixPaletteSize;
+    ubyte MatrixPalette[25];
+    uint32 UsedMatrixMask;
+};
+
+struct TDrawStreamItem_Skinned {
+    int16 materialId;
+    uint16 DetailMaterialId;
+    ubyte DetailOpacity;
+    ubyte MatrixCount;
+    uint16 nVertices;
+    uint16 nFaces;
+    ubyte MatrixId[4];
+    ubyte MiniRangeId;
+    ubyte Reserved;
+    uint16 RealnVertices;
+};
+
+struct TDrawStreamHeader {
+    uint16 T2Count;
+    uint16 CT1Count;
+    uint16 NCT2Count;
+    uint16 NT1Count;
+    uint16 NT2Count;
+    uint16 NW1T1Count;
+    uint16 NW1T2Count;
+    uint16 NW3T1Count;
+    uint16 NW3T2Count;
+    uint16 LevelLODCount;
+    uint16 SkinedLODCount;
+};
+
+struct TGEOMVERTEXT1 {
+    T3DVECTOR pos;
+    float u;
+    float v;
+};
+
+struct TGEOMVERTEXCT1 {
+    T3DVECTOR pos;
+    TRGBCOLOR color;
+    float u;
+    float v;
+};
+
+struct TGEOMVERTEXNT1 {
+    T3DVECTOR pos;
+    T3DVECTOR normal;
+    float u;
+    float v;
+};
+
+struct TGEOMVERTEXNT2 {
+    T3DVECTOR pos;
+    T3DVECTOR normal;
+    float u1;
+    float v1;
+    float u2;
+    float v2;
+};
+
+struct TGEOMVERTEXNW1T1 {
+    T3DVECTOR pos;
+    float weight;
+    T3DVECTOR normal;
+    float u;
+    float v;
+};
+
+struct TGEOMVERTEXNW1T2 {
+    T3DVECTOR pos;
+    float weight;
+    T3DVECTOR normal;
+    float u1;
+    float v1;
+    float u2;
+    float v2;
+};
+
+struct TGEOMVERTEXNW3T1 {
+    T3DVECTOR pos;
+    float weight1;
+    float weight2;
+    float weight3;
+    T3DVECTOR normal;
+    float u;
+    float v;
+};
+
+struct TGEOMVERTEXNW3T2 {
+    T3DVECTOR pos;
+    float weight1;
+    float weight2;
+    float weight3;
+    T3DVECTOR normal;
+    float u1;
+    float v1;
+    float u2;
+    float v2;
+};
+
+struct TRF2Header {
+    uint16 Signature;
+    ubyte version;
+    ubyte LODCount;
+    uint16 framescount;
+    uint32 Materials;
+    uint32 BipedBones;
+    uint32 SkinedMesh;
+    uint32 MovementVectors;
+    uint32 HitMesh;
+    uint32 BonesGroups;
+    uint32 CollisionBoxes;
+    T3DBOX ModelBBox;
+    float CameraFOV;
+    uint32 flags;
+    float LODDistance[6];
+};
+
+TRF2Header RF2Header;
+if  ( 
+        RF2Header.Signature != 17768 && 
+        RF2Header.Signature != 17769 || 
+        RF2Header.version != 5 && RF2Header.version != 6 
+    )   Printf("Invalid RF2 format\n");
+
+else {
+
+        FSeek( RF2Header.CollisionBoxes );
+        uint16 ColBoxCount;
+        if( ColBoxCount )
+            TColBox ColBox[ColBoxCount] <optimize=true>;
+
+        FSeek( RF2Header.HitMesh );
+        uint16 HitMeshCount;
+        if( HitMeshCount )
+            THitMesh HitMesh[HitMeshCount] <optimize=false>;
+
+        FSeek( RF2Header.SkinedMesh );
+        uint32 DrawStreamSize;
+        
+        TDrawStreamHeader DrawStreamHeader;
+        if( DrawStreamHeader.T2Count )
+        struct T2{
+            TDrawStreamItem_MatrixPalette matrixPalette;
+            
+            if( matrixPalette.nFaces )
+                TFACE face[matrixPalette.nFaces] <optimize=true>;
+
+            if( matrixPalette.RealnVertices )
+                TGEOMVERTEXT1 vertices[matrixPalette.RealnVertices] <optimize=true>;
+        } DrawStream;
+
+        if( DrawStreamHeader.CT1Count )
+        struct CT1{
+            TDrawStreamItem_MatrixPalette matrixPalette;
+            
+            if( matrixPalette.nFaces )
+                TFACE face[matrixPalette.nFaces] <optimize=true>;
+
+            if( matrixPalette.RealnVertices )
+                TGEOMVERTEXCT1 vertices[matrixPalette.RealnVertices] <optimize=true>;
+        } DrawStream;
+
+        if( DrawStreamHeader.NCT2Count )
+        struct NCT2 {
+            TDrawStreamItem_MatrixPalette matrixPalette;
+            
+            if( matrixPalette.nFaces )
+                TFACE face[matrixPalette.nFaces] <optimize=true>;
+
+            if( matrixPalette.RealnVertices )
+                TGEOMVERTEXNT2 vertices[matrixPalette.RealnVertices] <optimize=true>;
+        } DrawStream;
+
+        if( DrawStreamHeader.NT1Count )
+        struct NT1 {
+            TDrawStreamItem_MatrixPalette matrixPalette;
+            
+            if( matrixPalette.nFaces )
+                TFACE face[matrixPalette.nFaces] <optimize=true>;
+
+            if( matrixPalette.RealnVertices )
+                TGEOMVERTEXNT1 vertices[matrixPalette.RealnVertices] <optimize=true>;
+        } DrawStream;
+        
+        if( DrawStreamHeader.NT2Count )
+        struct NT2 {
+            TDrawStreamItem_MatrixPalette matrixPalette;
+            
+            if( matrixPalette.nFaces )
+                TFACE face[matrixPalette.nFaces] <optimize=true>;
+
+            if( matrixPalette.RealnVertices )
+                TGEOMVERTEXNT2 vertices[matrixPalette.RealnVertices] <optimize=true>;
+        } DrawStream;
+
+        if( DrawStreamHeader.NW1T1Count )
+        struct NW1T1 {
+            TDrawStreamItem_MatrixPalette matrixPalette;
+            
+            if( matrixPalette.nFaces )
+                TFACE face[matrixPalette.nFaces] <optimize=true>;
+
+            if( matrixPalette.RealnVertices )
+                TGEOMVERTEXNW1T1 vertices[matrixPalette.RealnVertices] <optimize=true>;
+        } DrawStream; 
+
+        if( DrawStreamHeader.NW1T2Count )
+        struct NW1T2 {
+            TDrawStreamItem_MatrixPalette matrixPalette;
+            
+            if( matrixPalette.nFaces )
+                TFACE face[matrixPalette.nFaces] <optimize=true>;
+
+            if( matrixPalette.RealnVertices )
+                TGEOMVERTEXNW1T2 vertices[matrixPalette.RealnVertices] <optimize=true>;
+        } DrawStream; 
+
+         if( DrawStreamHeader.NW3T1Count )
+        struct NW3T1 {
+            TDrawStreamItem_MatrixPalette matrixPalette;
+            
+            if( matrixPalette.nFaces )
+                TFACE face[matrixPalette.nFaces] <optimize=true>;
+
+            if( matrixPalette.RealnVertices )
+                TGEOMVERTEXNW3T1 vertices[matrixPalette.RealnVertices] <optimize=true>;
+        } DrawStream;
+
+        if( DrawStreamHeader.NW3T2Count )
+        struct NW3T2 {
+            TDrawStreamItem_MatrixPalette matrixPalette;
+            
+            if( matrixPalette.nFaces )
+                TFACE face[matrixPalette.nFaces] <optimize=true>;
+
+            if( matrixPalette.RealnVertices )
+                TGEOMVERTEXNW3T2 vertices[matrixPalette.RealnVertices] <optimize=true>;
+        } DrawStream;
+}

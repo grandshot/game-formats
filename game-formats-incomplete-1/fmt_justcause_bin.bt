@@ -1,0 +1,113 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct DATA;
+
+struct RESOURCE { //1
+    uint32 size;
+    if( size ) char guid[size];
+    DATA data;
+};
+
+struct VARIABLE { //2
+    uint32 size;
+    if( size ) char name[size];
+    DATA data;
+};
+
+struct CHARS( int count ) { //3
+    char text[count];
+};
+
+struct OBJECT { //4
+    int32 name;
+    DATA data;
+};
+
+struct VALUE { //5
+    int32 name;
+    DATA data;
+};
+
+struct TARRAY {
+    int16 type; //if count == 0 then int value == type
+    uint16 count;
+
+    if( count )
+        switch( type )
+        {
+            case 1:
+                RESOURCE Resource[count] <optimize=false>;
+                break;
+            case 2:
+                VARIABLE Variable[count] <optimize=false>;
+                break;
+            case 3:
+                CHARS Chars(count) <optimize=false>;
+                break;
+            case 4:
+                OBJECT Object[count] <optimize=false>;
+                break;
+            case 5:
+                VALUE Value[count] <optimize=false>;
+                break;
+        };
+};
+
+struct TFLOAT {
+    float value;
+};
+
+struct TSTRING {
+    uint16 size;
+    if( size )
+        char text[size];
+};
+
+struct TVECTOR4 {
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+enum <byte> DataType {
+    TYPE_NULL,
+    TYPE_ARRAY,
+    TYPE_FLOAT,
+    TYPE_STRING,
+    TYPE_4,
+    TYPE_5,
+    TYPE_VECTOR4
+};
+
+struct DATA {
+    DataType type;
+    switch( type )
+    {
+        case TYPE_ARRAY:
+            TARRAY Array;
+            break;
+        case TYPE_FLOAT:
+            TFLOAT Float;
+            break;
+        case TYPE_STRING:
+            TSTRING String;
+            break;
+        case TYPE_VECTOR4:
+            TVECTOR4 Vector4;
+            break;
+    };
+};
+
+do DATA data;
+while( !FEof() );

@@ -1,0 +1,56 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//   Authors: grandshot
+//   Version: 1.0
+//   Purpose: Parsing Driv3r Chunk Packages
+//  Category: Games
+// File Mask: *.D3C 
+//------------------------------------------------
+struct CHUNK_PACKAGE;
+
+struct CHUNK_HEADER {
+    char signature[4];
+    uint32 size;
+    uint32 numTables;
+    uint32 version;
+};
+
+struct CHUNK_TABLE {
+    char type[4];
+    uint32 offset;
+    ubyte version;
+    ubyte commentLength;
+    ubyte alignment;
+    ubyte reserved;
+    uint32 size;
+};
+
+string ChunkTableComment( CHUNK_TABLE &table ) {
+    local uint32 offset = ReadUInt( startof(table) + 4 ),
+                 commentLength = ReadUByte( startof(table) + 9 ),
+                 size = ReadUInt( startof(table) + 12 );
+
+    if( commentLength && size )
+        return ReadString( startof( parentof(table) ) + offset + size, commentLength );
+    else return "";
+};
+
+struct CHUNK_PACKAGE {
+    CHUNK_HEADER header;
+    if( header.size && header.numTables )
+    {
+        CHUNK_TABLE table[header.numTables] <optimize=false, comment=ChunkTableComment>;
+
+        local int i;
+        for( i = 0; i < header.numTables; i++ )
+            if( ReadString( startof(this) + table[i].offset, 4 ) == "CHNK" )
+            {
+                FSeek(startof(this) + table[i].offset);
+                CHUNK_PACKAGE package <size=ReadUInt( startof(this) + 4 )>; 
+                //startof(this) returns the startof of package struct because inline functions works in local space
+            }
+    };
+};
+
+CHUNK_PACKAGE package <size=ReadUInt( startof(this) + 4 )>;

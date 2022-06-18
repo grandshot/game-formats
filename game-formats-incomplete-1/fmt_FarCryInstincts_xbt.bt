@@ -1,0 +1,39 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct HEADER {
+    char signature[4]; //00 01 04 03
+    uint32 width;
+    uint32 height;
+    uint32 sizeOfData;
+    uint32 pixelFormat;
+    uint32 numMips;
+    uint32 numSides; //6 for cubemap
+    uint32 unknown;
+};
+
+struct MIP( uint numBytes ){
+ uchar data[numBytes];
+};
+HEADER header;
+
+local uint i, x, y;
+local uint numBytes = header.pixelFormat > 10 ? 4 : 2;
+
+for( i = header.numMips, x = header.width, y = header.height; i; i-- )
+{
+    MIP mip( x * y * numBytes ) <optimize=false>;
+    x /= 2; y /= 2;
+    x = x < 1 ? 1 : x;
+    y = y < 1 ? 1 : y;
+}

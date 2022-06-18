@@ -1,0 +1,80 @@
+//------------------------------------------------
+//--- 010 Editor v10.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+string hinfoCOMMENT( ubyte hinfo )
+{
+    local string temp;
+    SPrintf( temp, "SurfId: %d, IsHole: %d, unk: %d;", (hinfo << 3) >> 5, (hinfo << 7) >> 7, hinfo >> 5 );
+
+    return temp;
+};
+
+
+struct CHUNK {
+    ubyte nameSize;
+    if( nameSize )
+        char chunkName[nameSize];
+
+    uint32 compressedSizeFlag;
+    uint32 chunkSize;
+    uint32 unknown;
+    
+    local uint32 realSize = chunkSize; 
+    if (chunkSize != compressedSizeFlag) realSize = compressedSizeFlag & 0xFFFFFF;
+    
+    if( nameSize )
+        switch( chunkName )
+        {
+            case "HeightmapData":
+                float height[ realSize / 4 ];
+                break;
+            case "HeightmapInfo":
+                ubyte hinfo[realSize] <comment=hinfoCOMMENT, optimize=false>;
+                break;
+    
+            default:
+                FSkip(realSize);
+                break;
+        };
+        
+};
+
+string chunkCOMMENT( CHUNK &chunk )
+{
+    local string temp;
+
+    if( chunk.nameSize )
+        temp = chunk.chunkName;
+
+    return temp;
+};
+
+local uint i, bits, xmlSize, sizeVar;
+
+
+while( ReadByte( sizeVar ) == -1 ) sizeVar++;
+
+local uchar buffer[ sizeVar + 1 ]; 
+
+ReadBytes(buffer, sizeVar, sizeVar + 1);
+for( i = 0; i <= sizeVar; i++ )
+{
+    xmlSize |= ((uint)buffer[i] << bits);
+    
+    bits += 8;
+};
+
+FSkip(xmlSize + (sizeVar * 2) + 1);
+uint32 numChunks;
+
+if( numChunks )
+    CHUNK chunk[numChunks] <optimize=false, comment=chunkCOMMENT>;

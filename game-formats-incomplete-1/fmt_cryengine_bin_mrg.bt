@@ -1,0 +1,99 @@
+//------------------------------------------------
+//--- 010 Editor v10.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct VECTOR3
+{
+    float x;
+    float y;
+    float z;
+};
+
+
+struct QUAT
+{
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+
+struct HEADER
+{
+    char signature[8];
+    int32 unknown1;
+    int32 propertySize;
+    if( propertySize )
+        char property[ propertySize ];
+    int32 unknown2;
+    int32 unknown3;
+    int32 unknown4;
+    int32 unknown5;
+    float unknown6;
+    int32 unknown7;
+    int32 numBlocks;
+    int32 unknown8;
+    int32 unknown9;
+    int32 unknown10;
+    int32 unknown11;
+    int32 unknown12;
+    int32 unknown13;
+    int32 unknown14;
+    int32 unknown15;
+    int32 unknown16;
+    int32 unknown17;
+    int32 unknown18;
+    int32 unknown19;
+    int32 unknown20;
+    int32 unknown21;
+    int32 unknown22 <comment="num frames?">;
+    int32 unknown23;
+    
+} header;
+
+struct BLOCK
+{
+    float unknown1 <comment="tics per frame?">;
+    float unknown2 <comment="secs per tick?">;
+    uint32 numItems;
+    int32 unknown3;
+    int32 numByteBlocks;
+    int32 numBytes;
+    int32 unknown6;
+    int32 unknown7;
+    int32 unknown8;
+    int32 unknown9;
+} block[ header.numBlocks];
+
+local int i;
+for( i = 0; i < header.numBlocks; i++ )
+{
+ struct 
+        {
+            struct ITEM 
+            {
+                uint32 unknown1;
+                int32 unknown2 <comment="range start?">;
+                int32 unknown3 <comment="range count?">;
+                int32 unknown4;
+            } item[ block[i].numItems ];
+        
+            struct
+            {
+                byte unknown[ block[i].numBytes ];
+        
+            } bytesBlock[ block[i].numByteBlocks ];
+        } new;
+
+}
+
+ubyte unknown[12];

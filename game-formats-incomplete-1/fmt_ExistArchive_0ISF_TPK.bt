@@ -1,0 +1,35 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: graf_exist_archive_0isf_tpk.bt
+//   Authors: grandshot
+//   Version: 0.1
+//   Purpose: A template for parse Exist Archive game packages
+//  Category: Game
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct HEADER {
+    char signature[4];
+    uint32 unknown;
+    uint32 num_files;
+    uint32 unknown;
+};
+
+struct ENTRY {
+    uint32 name_offset;
+    uint32 file_offset;
+    uint32 unknown;
+    uint32 file_size;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+};
+
+HEADER header;
+if( header.numfiles )
+    struct TABLE {
+        ENTRY entry[header.num_files] <optimize=false>;
+    } table;

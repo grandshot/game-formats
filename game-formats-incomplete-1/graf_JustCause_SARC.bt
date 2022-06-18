@@ -1,0 +1,32 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: graf_JustCause_SARC.bt
+//   Purpose: Defines a template for parsing *SARC Small Archives
+//  Category: Game
+//  ID Bytes: 04 00 00 00 SARC
+//------------------------------------------------
+
+struct HEADER {
+    uint32 length_of_sign;
+    char signature[length_of_sign];
+    if( length_of_sign > 4 || signature != "SARC" )
+    {
+        Warning("Not a JustCause Small Archive format");
+        return -1;
+    }
+
+    uint32 version;
+    uint32 size_of_table;
+    local int end_of_table = FTell() + size_of_table;
+};
+
+struct ITEM {
+    uint32 length_of_name;
+    char name[length_of_name];
+    uint32 offset <format=hex>;
+    uint32 size;
+};
+
+HEADER header;
+while( FTell() < header.end_of_table ) ITEM item;

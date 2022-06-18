@@ -1,0 +1,61 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct BBOX {
+    float min[3];
+    float max[3];
+};
+
+struct DECAL {
+    uint32 blockSize;
+    char name[blockSize - 4];
+};
+uint SizeDECAL( DECAL &decal ) { return ReadUInt(); }
+string ReadDECAL( DECAL &decal ) { return ReadString(startof(decal) + 4); };
+
+struct OBJECT {
+    uint32 blockSize;
+    char name[blockSize - 28 - 4];
+    uint32 unknown;
+    BBOX bbox;
+};
+uint SizeOBJECT( OBJECT &object ) { return ReadUInt(); }
+string ReadOBJECT( OBJECT &object ) { return ReadString(startof(object) + 4); };
+
+struct PARAM {
+    uint32 unknown;
+};
+
+struct HEADER {
+    char signature[3];
+    uint32 version;
+    uint32 unknown;
+    uint32 numDecals;
+    if( numDecals )
+        struct DECALS {
+            DECAL decal[numDecals] <size=SizeDECAL, read=ReadDECAL, optimize=false>;
+        } decals;
+
+    uint32 numObjects;
+    if( numObjects )
+        struct OBJECTS {
+            OBJECT object[numObjects] <size=SizeOBJECT, read=ReadOBJECT, optimize=false>;
+        } objects;
+
+    uint32 numParams;
+    if( numParams )
+        struct PARAMS {
+            PARAM param[numParams] <size=76>;
+        } params;
+};
+
+HEADER header;

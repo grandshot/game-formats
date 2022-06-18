@@ -1,0 +1,42 @@
+//------------------------------------------------
+//--- 010 Editor v10.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+int div_up(int x)
+{
+    local int i = 4;
+    while (i < x) i += 4;
+    return i - x;
+};
+
+struct BLOCK
+{
+    uint32 blockSize;
+    int32 unknown[3];
+    int32 unknown2;
+    uint32 fileSize;
+    string filePath;
+    
+    local int tempSize = div_up(sizeof(filePath));
+    if (tempSize) FSkip(tempSize);
+    byte file[fileSize];
+    char sign[4];
+};
+
+struct ASR
+{
+    char sign[12];
+    do BLOCK block;
+    while (!FEof());
+};
+
+ASR asr;

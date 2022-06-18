@@ -1,0 +1,29 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+enum <uint32> METHOD
+{
+  TCM_STORE = 0x0,
+  TCM_DEPRECATED = 0x1,
+  TCM_NORMAL = 0x2,
+  TCM_HIGH = 0x3,
+  TCM_ZLIB_FAST = 0x4,
+  TCM_ZLIB_NORMAL = 0x5,
+  TCM_ZLIB_HIGH = 0x6,
+};
+
+struct HEADER {
+    //uint32 methodAndUncompressedSize;
+    uint32 uncompressedSize : 28;
+    METHOD compressionMethod : 4;
+    uint32 compressedSize;
+} header;

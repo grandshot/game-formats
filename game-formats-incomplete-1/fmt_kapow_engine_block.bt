@@ -1,0 +1,42 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: fmt_kapow_engine_block.bt
+//   Authors: grandshot
+//   Version: 0.1
+//   Purpose: A template for parsing Kapow Engine Block packages (The Watchmen)
+//  Category: Game
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct HEADER {
+    byte unknown;
+    uint32 unknown;
+    uint32 table_size;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 num_entries;
+    int32 unknown;
+    int32 unknown;
+};
+
+struct ENTRY {
+    byte flag;
+    if(flag) int32 unknown[12];
+    uint32 size[6];
+    int32 unknown;
+    uint32 name_length;
+    char name[name_length];
+};
+
+FSeek(327);
+HEADER header;
+
+FSeek(399);
+if( header.num_entries )
+    struct TABLE {
+        ENTRY entry[header.num_entries] <optimize=false>;
+    } table;

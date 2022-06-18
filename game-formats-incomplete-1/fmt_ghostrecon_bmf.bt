@@ -1,0 +1,49 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct POSITION {
+    uint32 time;
+    float x;
+    float y;
+    float z;
+};
+
+struct ROTATION {
+    uint32 time;
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct BONE {
+    uint32 nameLenght;
+    char name[ nameLenght ];
+
+    uint32 numPositions;
+    if( numPositions > 0 )
+        POSITION position[ numPositions ] <optimize=true>;
+
+    uint32 numRotations;
+    if( numRotations > 0 )
+        ROTATION rotation[ numRotations ] <optimize=true>;
+    
+};
+
+struct FILE {
+    float animTime;
+    int32 numFrames;
+    int32 numBones;
+
+    BONE bone[ numBones ] <optimize=false>;
+    
+} file;

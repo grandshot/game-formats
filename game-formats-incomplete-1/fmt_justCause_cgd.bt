@@ -1,0 +1,48 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct VECTOR4 {
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct BBOX {
+    VECTOR4 min;
+    VECTOR4 max;
+};
+
+struct MATRIX {
+    float row1[4];
+    float row2[4];
+    float row3[4];
+    float row4[4];
+};
+
+struct HEADER {
+    uint32 sign <format=hex>;
+    uint32 unknown <comment="Always 2?">;
+    uint32 numTransforms;
+    uint32 numLods;
+    uint32 stringsBlockSize;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+
+    BBOX bbox;
+
+    uint32 unknown;
+
+    MATRIX matrix[numTransforms];
+
+} header;

@@ -1,0 +1,99 @@
+enum <int16> CATHEGORY
+{
+    CLUSTER,
+    OTHER = 8
+};
+
+string getValue( int id )
+{
+    local string temp = "";
+
+    return SPrintf(temp, "%f", vegetationBank.value[id]);
+};
+
+struct VEGDATA
+{
+    uint16 id;
+    ubyte flags[2];
+    
+    int32 alphaBlend;
+    float blockPathFind;
+    float spriteSwitchDistanceRatio;
+    float spriteShadowBrightness;
+    float lodRatio;
+    float viewDistanceRatio;
+    float backSideLevel;
+    
+    int32 playerBendingSoundEvent;
+    int32 playerStepPlaySoundEvent;
+    int32 playerStepStopSoundEvent;
+    int32 vehicleBendingSoundEvent;
+    int32 vehicleStepPlaySoundEvent;
+    int32 vehicleStepStopSoundEvent;
+
+    uint32 unknownId;
+    CATHEGORY cathegory;
+    byte unknown7[2];
+    uint32 valueId[8] <comment=getValue>;
+    int32 unknown1[27];
+    float unknown9[16]; 
+};
+
+struct VEGFILE
+{
+    char fileName[512];
+};
+
+struct VEGSPRITE
+{
+    uint32 width;
+    uint32 height;
+    uint32 unknown; //Mips?
+};
+
+struct VEGSPRITEATLAS
+{
+    int32 unknown;
+    int32 unknown2;
+    int32 unknown3;
+    int16 unknown4;
+    int16 unknown5;
+
+    uint32 width;
+    uint32 height;
+    uint32 unknown6; //Mips?
+};
+
+struct VEGBANK
+{
+    char signature[4];
+    uint32 unknown1;
+    uint32 numVegData;
+    uint32 numVegFiles;
+    uint32 numVegSprites;
+    uint32 unknown2;
+    uint32 unknown3;
+    float bounds[8];
+    float value[128] <optimize=true>;
+
+    uint32 spriteAtlasLocalOffset;
+    uint32 spriteAtlasSize;
+    
+    uint32 unknown4;
+    uint32 vegDataSize; 
+
+    VEGDATA vegetationData[numVegData];
+
+    uint32 unknown5;
+    uint32 vegFileSize;
+
+    VEGFILE vegetationFile[numVegFiles];
+
+    uint32 unknown;
+    uint32 vegSpriteSize;
+
+    VEGSPRITE vegetationSprite[numVegSprites];
+
+    VEGSPRITEATLAS vegetationSpriteAtlas;
+ 
+} vegetationBank;

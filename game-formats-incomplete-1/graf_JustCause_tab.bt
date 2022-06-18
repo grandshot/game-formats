@@ -1,0 +1,29 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: graf_JustCause_tab.bt
+//   Purpose: Defines a template for parsing pc.tab file
+//  Category: Game
+//------------------------------------------------
+uint align( uint value )
+{
+    local uint i;
+    while( i < value ) i += header.size_of_block;
+
+    return i;
+};
+
+struct HEADER {
+    uint32 version;
+    uint32 aligment;
+    uint32 num_archives;
+};
+
+struct ITEM {
+    uint32 hash <format=hex, comment="SHA-1 Steve Reid version. First 4 bytes.">;
+    uint32 offset_in_blocks;
+    uint32 size;
+};
+
+HEADER header;
+while( !FEof() ) ITEM item;

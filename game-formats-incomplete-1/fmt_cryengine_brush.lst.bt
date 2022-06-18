@@ -1,0 +1,35 @@
+//------------------------------------------------
+//--- 010 Editor v9.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct HEADER {
+    char CRY[3];
+    int32 unknown1;
+    uint32 unknown2;
+    uint32 count;
+};
+
+struct BRUSH {
+    uint32 unknown;
+    float min_x<format=hex>;
+    float min_y<format=hex>;
+    float min_z<format=hex>;
+    float max_x<format=hex>;
+    float max_y<format=hex>;
+    float max_z<format=hex>;
+    uint32 crc<format=hex>;
+};
+
+HEADER header;
+
+if( header.count )
+    BRUSH brush[header.count];

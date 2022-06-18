@@ -1,0 +1,357 @@
+//------------------------------------------------
+//--- 010 Editor v8.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct POINT2
+{
+    float x;
+    float y;
+};
+
+struct POINT3
+{
+    float x;
+    float y;
+    float z;
+};
+
+struct MATRIX
+{
+    float row1[4];
+    float row2[4];
+    float row3[4];
+    float row4[4];
+};
+
+
+struct VERTICES( int numWeights )
+{
+    POINT3 position;
+    if( numWeights > 0 )
+        float weight[numWeights];
+    
+    byte paletteIds[4];
+
+    POINT3 normal;
+    POINT2 uv;
+};
+
+struct FACES
+{
+    uint16 a;
+    uint16 b;
+    uint16 c;
+};
+
+struct BBOX
+{
+    POINT3 min;
+    POINT3 max;
+};
+
+struct MATERIAL
+{
+    ubyte matNameSz;
+    char matName[matNameSz];
+};
+
+struct MATERIALS
+{
+    uint16 matCount;
+    MATERIAL material[matCount]<optimize=false>;
+};
+
+struct TRANSFORMS
+{
+    MATRIX transform <optimize=false>;
+    MATRIX inversedTransform <optimize=false>;
+};
+
+struct BONEUNK2
+{
+    byte unknown[6];
+};
+
+enum <byte> ANIMFORMAT // in bits
+{
+    CONSTANT = -1,
+    KEY_24 = 0,
+    KEY_48 = 1, // for rf2 ver 8 rotation is 96 bits\key
+    KEY_64 = 2,
+    KEY_48_EULER = 3,
+    KEY_16_EULER = 6 // 1 angle
+    
+};
+
+struct ANIMDATA
+{
+    ANIMFORMAT animFormat;
+    if( animFormat == CONSTANT )
+        POINT3 animData;
+    else
+    {
+        uint32 size;
+        if( size )
+            char animData[ size ];
+    }
+};
+
+struct PACKED
+{
+    int16 x;
+    int16 y;
+    int16 z;
+};
+
+struct BONE
+{
+    char boneName[20];
+    byte parentId;
+    byte groupId;
+    byte unknown1;
+    int32 packedSz;
+
+    if ( packedSz > 0 )
+    {
+        uint32 numPacked;
+        PACKED packed[ numPacked ];
+        FSkip( packedSz - ( numPacked * 6 ) - 4 );
+
+    }
+    else
+    {
+        ANIMDATA positions;
+        ANIMDATA rotations;
+    }
+        
+};
+
+struct BONES
+{
+    ubyte bonesCount;
+    
+    BONE bone[bonesCount]<optimize=false>;
+
+    TRANSFORMS transforms[bonesCount]<optimize=false>;
+    BONEUNK2 boneunk2[bonesCount]<optimize=false>;
+};
+
+struct GEOMPART( int numWeights )
+{
+    uint16 materialId;
+    uint16 detailMaterialId;
+    ubyte detailOpacity;
+    ubyte miniRangeId;
+    uint16 numVertices;
+    uint16 numRealVerts;
+    uint16 numFaces;
+    ubyte matrixPaletteSize;
+    ubyte matrixPalette[25];
+    uint32 usedMatrixMask;
+    
+    if ( facesCount > 0 )
+    {
+        FACES faces[facesCount];
+    }
+
+    if ( realVerticesCount > 0 )
+    {
+        VERTICES vertices( numWeights )[realVerticesCount] <optimize=true>;
+        
+        if( hasDetail > 0 )
+            POINT2 UV2[ realVerticesCount ] <optimize=true>;
+    }
+        
+};
+
+struct LODS( int lodsCount )
+{
+    uint32 lodsBlockSz;
+    
+    uint16 T2Count;
+    uint16 CT1Count;
+    uint16 NCT2Count;
+    uint16 NT1Count;
+    uint16 NT2Count;
+    uint16 NW1T1Count;
+    uint16 NW1T2Count;
+    uint16 NW3T1Count;
+    uint16 NW3T2Count;
+    uint16 levelLODCount;
+    uint16 skinnedLODCount;
+
+    struct
+    {
+       if ( INT1Count > 0 )
+        {
+            struct
+            {
+                GEOMPART geompart( 0 )[INT1Count]<optimize=false>;
+            }INT1Parts;
+        }
+
+        if ( INT2Count > 0 )
+        {
+            struct
+            {
+                GEOMPART geompart( 0 )[INT2Count]<optimize=false>;
+            }INT2Parts;
+        }
+
+        if ( INW1T1Count > 0 )
+        {
+            struct
+            {
+                GEOMPART geompart( 1 )[INW1T1Count]<optimize=false>;
+            }INW1T1Parts;
+        }
+
+        if ( INW1T2Count > 0 )
+        {
+            struct
+            {
+                GEOMPART geompart( 1 )[INW1T2Count]<optimize=false>;
+            }INW1T2Parts;
+        }
+
+        if ( INW2T1Count > 0 )
+        {
+            struct
+            {
+                GEOMPART geompart( 2 )[INW2T1Count]<optimize=false>;
+            }INW2T1Parts;
+        }
+
+        if ( INW2T2Count > 0 )
+        {
+            struct
+            {
+                GEOMPART geompart( 2 )[INW2T2Count]<optimize=false>;
+            }INW2T2Parts;
+        } 
+    }LOD[lodsCount]<optimize=false>;
+  
+};
+
+struct CURVES( int framesCount )
+{
+    POINT3 keyframe[framesCount];
+};
+
+struct HITMESH
+{
+    byte unknown[3];
+    uint16 facesCount;
+    uint16 verticesCount;
+
+    FACES faces[facesCount];
+    POINT3 vertices[verticesCount];
+};
+
+struct HITMESHES
+{
+    uint16 hitsCount;
+    
+    if ( hitsCount > 0 )
+    {
+        HITMESH himesh[hitsCount]<optimize=false>;
+    }
+};
+
+struct GROUP
+{
+    char groupName[20];
+    byte unknown;
+};
+
+struct GROUPS
+{
+    byte groupsCount;
+    
+    if ( groupsCount )
+    {
+        GROUP group[groupsCount];
+    }
+};
+
+struct COLLISSION
+{
+    POINT3 position;
+    float unknown[14];
+};
+
+struct RF2HEADER
+{
+    int16 RF2ID<format=hex>;
+    ubyte version;
+    ubyte lodsCount;
+    uint16 framesCount;
+    uint32 materialsOffset<format=hex>;
+    uint32 bonesOffset<format=hex>;
+    uint32 lodsOffset<format=hex>;
+    uint32 curvesOffset<format=hex>;
+    uint32 hitsOffset<format=hex>;
+    uint32 groupsOffset<format=hex>;
+    uint32 collisionsOffset<format=hex>;
+
+    BBOX bounds;
+
+    int32 unknown[2]<format=hex>;
+    float distances[6];
+};
+
+RF2HEADER header;
+
+if ( header.materialsOffset > 0 )
+{
+    FSeek ( header.materialsOffset );
+    MATERIALS materials;
+}
+
+if ( header.bonesOffset > 0 )
+{
+    FSeek ( header.bonesOffset );
+    BONES bones;
+}
+
+if ( header.lodsOffset > 0 )
+{
+    FSeek ( header.lodsOffset );
+    LODS lods( header.lodsCount );
+}
+
+if ( header.curvesOffset > 0 )
+{
+    FSeek ( header.curvesOffset );
+    CURVES curves ( header.framesCount ) <comment="Movement curves data">;
+}
+
+
+if ( header.hitsOffset > 0 )
+{
+    FSeek ( header.hitsOffset );
+    HITMESHES hitmeshes;
+}
+
+if ( header.groupsOffset > 0 )
+{
+    FSeek ( header.groupsOffset );
+    GROUPS groups;
+}
+
+if( header.collisionsOffset )
+{
+    FSeek( header.collisionsOffset );
+    int16 colsCount;
+    if( colsCount > 0)
+        COLLISSION collission[ colsCount ] <optimize=false>;
+}

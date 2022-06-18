@@ -1,0 +1,148 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+typedef struct {
+    float row1;
+    float row2;
+    float row3;
+    float row4;
+} MATRIX[4];
+
+
+struct VECTOR3 {
+    float x;
+    float y;
+    float z;
+};
+
+struct VECTOR4 {
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct TRANSFORM {
+    VECTOR3 unknown;
+    VECTOR3 unknown;
+    VECTOR4 unknown;
+};
+
+struct VERTEX {
+    float x;
+    float y;
+    float z;
+    float u;
+    float v;
+    int32 unknown;
+    if( file.hasAnim )
+        int32 unknown;
+};
+
+struct NAME {
+    uint32 nameSize;
+    string name;
+};
+
+struct INFO {
+    VECTOR3 unknown;
+    VECTOR3 unknown;
+    VECTOR3 max;
+    VECTOR3 min;
+    VECTOR4 unknown;
+};
+
+struct MATERIAL {
+    NAME materialName;
+    NAME materialType;
+    NAME materialProp;
+    
+    int32 hasMesh;
+    if( hasMesh ) NAME meshName;
+    
+    int32 hasInfo;
+    if( hasInfo )
+    {
+        VECTOR3 unknown;
+        VECTOR3 unknown;
+        VECTOR3 max;
+        VECTOR3 min;
+        VECTOR4 unknown;
+    }
+};
+
+struct ANIM {
+    NAME animInfo;
+    MATRIX matrix;
+    TRANSFORM transform;
+};
+
+struct NODE {
+    int32 unknownId;
+    int32 unknownId;
+    uint32 unknown;
+    NAME nodeName;
+
+    if( nodeName.name != "static" ) byte unknown;
+    MATRIX matrix;
+};
+
+struct GEOM {
+    uint32 numVertices;
+    uint32 numFaces;
+    if( numVertices )
+        VERTEX vertex[numVertices] <optimize=true>;
+    if( numFaces )
+        uint16 face[numFaces];
+    int32 unknown;
+};
+
+struct FILE {
+    char signature[15];
+    int32 hasAnim;
+    if( hasAnim ) NAME animName;
+    uint32 numNodes;
+    uint32 sizeMaterials;
+    uint32 numMaterials;
+    MATERIAL material[numMaterials] <optimize=false>;
+    
+    
+    uint32 numUnknown;
+    int32 unknown;
+    if( numUnknown > 1 )
+        int64 unknown2[numUnknown - 1];
+
+    NODE node[numNodes] <optimize=false>;
+
+    VECTOR3 min;
+    VECTOR3 max;
+    int16 unknown;
+    int16 unknown;
+    int16 unknown;
+    int32 numGeomParts;
+    
+    uint32 numAnimInfo;
+    if( numAnimInfo )
+    {
+        ANIM anim[numAnimInfo] <optimize=false>;
+        int32 unknown;
+    }
+    else
+    {
+        TRANSFORM transform;
+    }
+    GEOM geom[numGeomParts] <optimize=false>;
+
+};
+
+
+FILE file;

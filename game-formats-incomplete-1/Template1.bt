@@ -1,0 +1,24 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct {
+    char sign[4];
+    uint32 numFiles;
+} header;
+
+struct {
+    uint32 crc <format=hex>;
+    string fileName;
+    int16 unknown1;
+    uint32 unknown2;
+    
+} file;

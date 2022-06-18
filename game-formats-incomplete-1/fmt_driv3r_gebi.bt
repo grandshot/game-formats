@@ -1,0 +1,52 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct VECTOR3 {
+    float x;
+    float y;
+    float z;
+};
+
+struct QUAT {
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct HEADER {
+    int32 unknown;
+    byte unknown2[8];
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    uint32 numTables;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    int32 unknown;
+    float unknown;
+    int32 unknown;
+    int32 unknown;
+};
+
+struct TABLE {
+    VECTOR3 position;
+    uint16 modelId;
+    int16 unknown;
+    QUAT rotation;
+};
+
+HEADER header;
+TABLE table[header.numTables];

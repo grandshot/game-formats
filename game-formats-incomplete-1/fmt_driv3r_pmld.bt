@@ -1,0 +1,31 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct HEADER {
+    int32 version;
+    uint32 numTables;
+    uint32 unknown;
+    uint32 unknown;
+};
+
+struct TABLE {
+    uint16 id;
+    uint16 unknown;
+    uint16 parentId;
+    uint16 unknown;
+    uint32 unknown;
+    uint32 hash <format=hex>;
+    float unknown;
+};
+
+HEADER header;
+TABLE table[header.numTables];

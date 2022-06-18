@@ -1,0 +1,270 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct VECTOR2 {
+    float x;
+    float y;
+};
+
+struct VECTOR3 {
+    float x;
+    float y;
+    float z;
+};
+
+struct VECTOR4 {
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct COLOR {
+    uint32 r;
+    uint32 g;
+    uint32 b;
+    uint32 a;
+};
+
+struct BBOX {
+    VECTOR4 min;
+    VECTOR4 max;
+};
+
+struct MATRIX {
+    float row1[4];
+    float row2[4];
+    float row3[4];
+    float row4[4];
+};
+
+struct VERTBUFFER( int stride )
+{
+
+    
+    switch( stride )
+    {
+
+        case 48:
+            VECTOR3 position;
+            VECTOR3 normal;
+            VECTOR2 uv;
+            VECTOR4 tangent;
+            break;
+
+        case 60:
+            VECTOR3 position;
+            VECTOR3 normal;
+            VECTOR2 uv;
+            VECTOR3 position2;
+            VECTOR3 normal2;
+            VECTOR4 tangent;
+            break;
+            
+                
+
+    };
+};
+
+struct HEADER {
+    uint32 version;
+    uint32 uid;
+    uint32 modelsCount;
+    uint32 modelsOffset;
+    uint32 lodInstancesCount;
+    uint32 lodInstancesOffset;
+    uint32 subModelsCount;
+    uint32 subModelsOffset;
+    uint32 handle;
+    uint32 reserved;
+    uint32 textureDataOffset;
+    uint32 materialDataOffset;
+    
+    uint32 indicesCount;
+    uint32 indicesLength;
+    uint32 indicesOffset;
+    
+    uint32 vertexDeclsCount;
+    uint32 vertexDeclsOffset;
+
+    if( version == 6 )
+        uint32 unknown;
+
+    
+
+    local string platform = SubStr( FileNameGetExtension( GetFileName() ), 1, -1 );
+};
+
+struct LODINSTANCEINFO {
+    uint32 subModelsOffset;
+    if( header.version == 6 ) uint32 unknown;
+    MATRIX transform;
+    uint16 subModelsCount;
+    uint16 useTransform;
+    if( header.version == 6 ) uint32 unknown;
+    uint32 reserved;
+    uint16 handle;
+    if( header.version == 6 ) uint16 unknown;
+        
+};
+
+struct LODINFO {
+    uint32 instanceOffset;
+    if( header.version == 6 ) uint32 unknown;
+    uint32 instancesCount;
+    uint32 reserved;
+    uint32 flags;
+    uint32 mask;
+    uint32 extraData;
+    
+    if( header.version == 6 ) uint32 unknown;
+};
+
+struct MODEL {
+    uint64 uid;
+    VECTOR4 scale;
+    uint16 bufferIndex;
+    uint16 bufferType;
+    uint32 flags;
+    uint32 reserved;
+    if( header.version == 6 ) uint32 unknown;
+    BBOX bbox[4];
+    LODINFO lodInfo[7] <optimize=true>;
+};
+
+struct SUBMODEL {
+    if( header.platform == "mdxb" )
+    {
+        uint32 indexCount;
+        uint32 indexOffset;
+        uint32 primitiveType;
+        uint32 vertexCount;
+        uint32 vertexOffset;
+        uint32 unknown;
+    }
+    else
+    {
+        uint32 primitiveType;
+        uint32 vertexBaseOffset;
+        uint32 vertexOffset;
+        uint32 vertexCount;
+        uint32 indexOffset;
+        uint32 indexCount;
+        byte unknown[24];
+    }
+
+    uint16 materialHandle;
+    uint16 materialUID;
+    uint32 unknown;
+    
+};
+
+struct VERTEXBUFFERINFO {
+    uint32 verticesCount;
+    uint32 verticesLength;
+    uint32 verticesOffset;
+    uint32 vertexLength;
+    uint32 reserved;
+    if( header.version != 6 ) uint32 unknown;
+    uint32 reserved;
+    uint32 reserved;
+};
+
+enum <uint16> MaterialPackageType 
+{
+    PCMP = 0x504D4350,
+    TSC2 = 0x32435354,
+    XBMP = 0x504D4258,
+    XNMP = 0x504D4E58
+};
+
+struct MATERIALPACKAGE {
+    MaterialPackageType packageType;
+    
+    if( packageType == TSC2 )
+    {
+        uint16 materialsCount;
+        uint16 substanceRefsCount;
+        uint16 substancesCount;
+        uint16 textureRefsCount;
+        uint16 texturesCount;
+        uint16 version;
+        uint32 dataSize;
+    }
+    else
+    {
+        uint32 version;
+        uint32 materialsCount;
+        uint32 materialsOffset;
+        uint32 substanceRefsCount;
+        uint32 substanceRefsOffset;
+        uint32 substancesCount;
+        uint32 substancesOffset;
+
+        if( header.version != 6 || packageType == XBMP )
+        {
+            uint32 paletteRefsCount;
+            uint32 paletteRefsOffset;
+            uint32 palettesCount;
+            uint32 palettesOffset;
+        }
+
+        uint32 textureRefsCount;
+        uint32 textureRefsOffset;
+        uint32 texturesCount;
+        uint32 texturesOffset;
+        uint32 textureDataOffset;
+        uint32 dataSize;
+        
+    }
+};
+
+HEADER header;
+
+if( header.modelsCount )
+{
+    FSeek( header.modelsOffset );
+    MODEL model[header.modelsCount] <optimize=true>;
+}
+
+if( header.lodInstancesCount )
+{
+    FSeek( header.lodInstancesOffset );
+    LODINSTANCEINFO lodInstanceInfo[header.lodInstancesCount] <optimize=true>;
+}
+
+if( header.subModelsCount )
+{
+    FSeek( header.subModelsOffset );
+    SUBMODEL submodel[header.subModelsCount] <optimize=true>;
+}
+
+if( header.materialDataOffset )
+{
+    FSeek( header.materialDataOffset );
+    MATERIALPACKAGE materialPackage;
+}
+
+if( header.vertexDeclsCount )
+{
+    FSeek( header.vertexDeclsOffset );
+    VERTEXBUFFERINFO vertexBufferInfo[header.vertexDeclsCount] <optimize=true>;
+}
+
+if( header.indicesCount )
+{
+    FSeek( header.indicesOffset );
+    struct INDICES {
+        uint16 id[header.indicesCount];
+    } indices;
+
+}

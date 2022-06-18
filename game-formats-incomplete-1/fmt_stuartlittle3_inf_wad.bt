@@ -1,0 +1,32 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct HEADER {
+    int32 unknown;
+    uint32 fileSize;
+    uint32 numTables;
+    uint32 unknown;
+    uint32 sizeHeaderAndTables;
+    uint32 idsOffset;
+} header;
+
+struct TABLE {
+    uint32 id;
+    uint32 size;
+    uint32 nameOffset;
+} table[header.numTables];
+
+uint32 nameOffset[header.numTables];
+
+FSeek(header.idsOffset);
+uint32 id[header.numTables];

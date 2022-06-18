@@ -1,0 +1,450 @@
+//------------------------------------------------
+//--- 010 Editor v10.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+local uint lastGeomPartOffset = 0;
+local uint lastNodeOffset = 0;
+local uint lastGeomDataOffset = 0;
+
+struct COLOR
+{
+    ubyte r;
+    ubyte g;
+    ubyte b;
+    ubyte a;
+};
+
+float unpackByte1( uint value )
+{
+    
+    return ( value / 2.0 + 1 ) ;
+};
+
+float unpackByte( uint value )
+{
+    // return ( value * 2.0 - 1 ) / 255.0 - 1;
+    return ( ( value / 255.0 ) * 2.0 - 1 ) ;
+};
+
+string unpackValue( COLOR &c )
+{
+    local string temp = "";
+
+    local float sa = unpackByte( c.a );
+    local float sb = unpackByte( c.b );
+    local float sg = unpackByte( c.g );
+    local float sr = unpackByte( c.r );
+
+    local float normLength2 = Sqrt( sb * sb + sg * sg + sr * sr );
+
+    /*
+    local float ua = unpackByte( c.a );
+    local float ub = unpackByte( c.b );
+    local float ug = unpackByte( c.g );
+    local float ur = unpackByte( c.r );
+    */
+
+    local float ua = sa / normLength2;
+    local float ub = sb / normLength2;
+    local float ug = sg / normLength2;
+    local float ur = sr / normLength2;
+    
+    local float normLength = Sqrt( ub * ub + ug * ug + ur * ur );
+    
+    SPrintf( temp, "unpacked [%f, %f, %f, %f]", sa, sb, sg, sr );
+    SPrintf( temp, "%s normalized [%f, %f, %f, %f]", temp, ua, ub, ug, ur );
+    SPrintf( temp, "%s length %f", temp,  normLength);
+    SPrintf( temp, "%s length2 %f", temp,  normLength2);
+
+    return temp;
+};
+
+string getItemString( int offsetNameLocal )
+{
+    return ReadString( xbgHeader.offsetNames + offsetNameLocal );
+}
+
+string getTexturePath( int texInfoId )
+{
+    if( texInfoId >= 0 )
+        return getItemString( textureInfo[ texInfoId ].offsetTextureName );
+    else
+        return "";
+};
+
+struct BBOX
+{
+    float XMin;
+    float XMax;
+    float YMin;
+    float YMax;
+    float ZMin;
+    float ZMax;
+};
+
+struct OBJMATRIX
+{
+    float XMin;
+    float XMax;
+    float ZMin;
+    float ZMax;
+};
+
+
+struct MATRIX4
+{
+    float row1[4];
+    float row2[4];
+    float row3[4];
+    float row4[4];
+};
+
+struct VECTOR2
+{
+    float x;
+    float y;
+};
+
+struct VECTOR3
+{
+    float x;
+    float y;
+    float z;
+};
+
+struct QUAT
+{
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct FACE
+{
+    uint16 a;
+    uint16 b;
+    uint16 c;
+};
+
+struct MAD
+{
+    float add;
+    float mul;
+};
+
+
+struct XBG_HEADER
+{
+    char signature[4];
+    
+    uint32 unknown1;
+    int32 unknown2;
+    uint16 unknown3;
+    uint16 unknown4;
+
+    uint32 offsetMaterials <format=hex>;
+    int32 numMaterials;
+
+    uint32 offsetTexInfo <format=hex>;
+    int32 numTexInfo;
+
+    uint32 offsetBones <format=hex>;
+    int32 numBones;
+    uint32 offsetBoneTransforms <format=hex>;
+    int32 numBoneTransforms;
+    uint32 offsetBoneInfo <format=hex>;
+    int32 numBoneInfo;
+    
+    uint32 offsetNodes <format=hex>;
+    int32 numNodes;
+    uint32 offsetGeomParts <format=hex>;
+    int32 numWholeGeomNodes;
+    
+    uint32 offsetGeomData <format=hex>;
+    uint32 sizeGeomData;
+
+    uint32 offsetUnknown5 <format=hex>;
+    int32 numUnknown5;
+
+    uint32 offsetCollision <format=hex>;
+
+    uint32 offsetUnknown6 <format=hex>;
+    int32 numUnknown6;
+    
+    uint16 unknown7;
+    uint16 unknown8;
+
+    uint32 offsetNames <format=hex>;
+    uint32 sizeTexNames;
+    
+};
+
+struct TEXTURE_INFO
+{
+    uint32 offsetTextureName <format=hex, comment=getItemString>;
+    uint32 unknown;
+};
+
+struct MATERIAL
+{
+    uint32 unknown1 <comment="flags?">;
+    
+    COLOR unknownColor1 <comment="diffuse color?">;
+    COLOR unknownColor2 <comment="alpha color?">;
+
+    int32 duffuseMapId <comment=getTexturePath>;
+    int32 environmentMapId <comment=getTexturePath>;
+    int32 bumpMapId <comment=getTexturePath>;
+    
+    float unknown2 <comment="opacity?">;
+    COLOR unknown3;
+    COLOR unknown4;
+    COLOR unknown5;
+    ubyte unknown6[4];
+    int32 unknown7;
+};
+
+struct BONE
+{
+    uint32 crc <format=hex>;
+    int32 unknown1 <comment="id?">;
+    int32 unknown2;
+    int32 parentId;
+    
+    QUAT rotation;
+    VECTOR3 position;
+    VECTOR3 scale;
+    
+    int32 transformId;
+    float unknown3;
+    int16 unknown4 <comment="id of collision mesh?">;
+    uint16 offsetBoneName <format=hex, comment=getItemString>;
+    uint32 unknown5;
+};
+
+struct BONE_INFO
+{
+    uint32 crc <format=hex>;
+    byte unknown[4];
+};
+
+struct VERTICES( int stride )
+{
+    int16 x;
+    int16 y;
+    int16 z;
+    int16 w;
+    int16 u;
+    int16 v;
+    
+    if( stride > 12 )
+        COLOR pakedValue[ (stride - 12) / 4 ] <comment=unpackValue>;
+
+    
+};
+
+struct GEOM_PART
+{
+    uint16 id;
+    int16 unknown1;
+    uint32 offsetVertices <format=hex, comment="In geom data">;
+    uint32 offsetTristrips <format=hex, comment="In geom data">;
+    uint16 numTristrips;
+    uint16 stride;
+    uint16 numVertices;
+    uint16 unknown2 <format=hex, comment="flags?">;
+    byte palette[8];
+    byte unknown3[8];
+
+    lastGeomPartOffset = FTell();
+
+    FSeek( xbgHeader.offsetGeomData + offsetVertices );
+    VERTICES vertices( stride )[ numVertices ] <optimize=false>;
+
+    FSeek( xbgHeader.offsetGeomData + offsetTristrips );
+    uint16 tristrip[ numTristrips ];
+
+    FSeek( lastGeomPartOffset );
+};
+
+struct NODE
+{
+
+    int32 unknown1 <format=hex, comment="flags?">;
+    int32 unknown2 <comment="id?">;
+    int32 unknown3;
+    int32 unknown4;
+    int16 unknown5;
+    int16 numGeomParts;
+    OBJMATRIX nodeMatrix;
+    uint32 offsetNodeName <format=hex, comment=getItemString>;
+    int32 unknown6;
+    int32 unknown7;
+
+    lastNodeOffset = FTell();
+
+    if( numGeomParts )
+    {
+        FSeek( lastGeomPartOffset );
+        GEOM_PART geom_part[ numGeomParts ] <optimize=false>;
+    };
+
+    FSeek( lastNodeOffset );
+};
+
+struct COL_CAPSULE
+{
+    char signature[2];
+    uint16 unknown1;
+    uint32 nameSize;
+    if( nameSize )
+        char name[ nameSize ];
+
+    float unknown2[8];
+};
+
+struct COL_SPHERE
+{
+    char signature[2];
+    uint16 unknown1;
+    uint32 nameSize;
+    if( nameSize )
+        char name[ nameSize ];
+
+    float unknown2[4];
+};
+
+struct COL_MESH
+{
+    char signature[2];
+    uint16 unknown1;
+    uint32 nameSize;
+    if( nameSize )
+        char name[ nameSize ];
+
+    uint32 blockSize;
+    local int start = FTell();
+
+    float unknown2;
+    uint32 unknown3;
+    uint32 numVertices;
+    uint32 numFaces;
+    uint32 numUnknown1;
+    uint32 unknown4;
+    
+    VECTOR3 vertices[ numVertices ];
+    FACE faces[ numFaces ];
+
+    byte unknown5;
+    
+    uint16 unknownFaceIds[ numFaces ];
+    VECTOR3 unknownFaceVerts[ numFaces ];
+    FACE unknownFaces[ numFaces ];
+
+    FSkip( blockSize - ( FTell() - start ) );
+};
+
+struct COLLISION
+{
+    int32 numCollisions;
+    
+    local int i;
+    for( i = 0; i < numCollisions; i++ )
+    
+    switch( ReadString( FTell(), 2 ) )
+    {
+        case "ca":
+            COL_CAPSULE capsule;
+            break;
+
+        case "ms":
+            COL_MESH mesh;
+            break;
+
+        case "sp":
+            COL_SPHERE sphere;
+            break;
+        
+        default:
+            break;
+
+    }
+};
+
+LittleEndian();
+
+local int signature = ReadInt();
+if( signature == 0x11090101 )
+    BigEndian();
+
+XBG_HEADER xbgHeader;
+BBOX bbox;
+OBJMATRIX objectMatrix2;
+MAD vertexMultiplier;
+MAD tvertMultiplier;
+
+lastGeomPartOffset = xbgHeader.offsetGeomParts;
+lastNodeOffset = xbgHeader.offsetNodes;
+
+if( xbgHeader.numTexInfo )
+{
+    FSeek( xbgHeader.offsetTexInfo );
+    TEXTURE_INFO textureInfo[ xbgHeader.numTexInfo ] <optimize=true>;
+}
+
+if( xbgHeader.numMaterials )
+{
+    FSeek( xbgHeader.offsetMaterials );
+    MATERIAL material[ xbgHeader.numMaterials ] <optimize=true>;
+}
+
+if( xbgHeader.numBones )
+{
+    FSeek( xbgHeader.offsetBones );
+    BONE bone[ xbgHeader.numBones ] <optimize=true>;
+}
+
+if( xbgHeader.numBoneTransforms )
+{
+    FSeek( xbgHeader.offsetBoneTransforms );
+    MATRIX4 boneTransform[ xbgHeader.numBoneTransforms ] <optimize=true>;
+}
+
+if( xbgHeader.numBoneInfo )
+{
+    FSeek( xbgHeader.offsetBoneInfo );
+    BONE_INFO boneInfo[ xbgHeader.numBoneInfo ] <optimize=true>;
+}
+
+if( xbgHeader.numNodes )
+{
+    FSeek( lastNodeOffset );
+    NODE node[ xbgHeader.numNodes] <optimize=false>;
+    
+}
+
+/*local int i, j, k = 0;
+for( i = 0; i < header.numNodes; i++ )
+{
+    for( j = 0; j < node[i].numParts - 1; j ++ )
+    {
+        FSeek( k * 36 + header.offsetParts );
+        GEOMPART geompart <optimize=false>;
+        k += j;
+    }
+}*/
+
+if( ReadInt( xbgHeader.offsetCollision ) )
+{
+    FSeek( xbgHeader.offsetCollision );
+    COLLISION collision;
+}

@@ -1,0 +1,68 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: common.bt
+//   Authors: grandshot
+//   Version: 1.0
+//   Purpose: Common things for game formats parsing
+//------------------------------------------------
+
+struct RGB {
+    ubyte r, g, b;
+};
+
+struct RGBA {
+    ubyte r, g, b, a;
+};
+
+typedef struct {
+    float row[4];
+} MATRIX43[3];
+
+typedef struct {
+    float row[4];
+} MATRIX44[4];
+
+struct VECTOR2 {
+    float x, y;
+};
+
+struct VECTOR3 {
+    float x, y, z;
+};
+
+struct VECTOR4 {
+    float x, y, z, w;
+};
+
+struct QUAT_XYZW {
+    float x, y, z, w;
+};
+
+struct QUAT_WXYZ {
+    float w, x, y, z;
+};
+
+struct FACE {
+    uint16 a, b, c;
+};
+
+struct FACE_LONG {
+    uint32 a, b, c;
+};
+
+/*struct BBOX {
+    float min[3];
+    float max[3];
+};*/
+
+uint32 alignment( uint32 align, uint32 size )
+{
+    local uint aligned_size;
+    
+    do aligned_size += align;
+    while( aligned_size < size );
+
+    return aligned_size;
+};
+

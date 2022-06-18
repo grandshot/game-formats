@@ -1,0 +1,265 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct VECTOR3 {
+    float x;
+    float y;
+    float z;
+};
+
+struct VECTOR2 {
+    float x;
+    float y;
+};
+
+struct TEXVERT {
+    VECTOR2 uv[3];
+};
+
+struct VALUE2 {
+    uint32 unknown;
+    uint32 unknown;
+};
+
+struct VALUE3 {
+    uint32 unknown;
+    float unknown;
+    uint32 unknown;
+    uint32 unknown;
+};
+
+struct FACE {
+    uint16 a;
+    uint16 b;
+    uint16 c;
+};
+
+struct HEADER {
+    char sign[2];
+    uint16 version;
+    uint32 size;
+    uint32 flags;
+    uint32 propertiesOffset;
+    uint32 offsetLevelTextData;
+    uint32 offsetMaterials;
+    uint32 offsetGeometry;
+    uint32 offsetRoomParams;
+    uint32 offsetPortals;
+    uint32 offsetObjects <comment="Packed">;
+    uint32 offsetGroups;
+    uint32 offsetObjectLighting <comment="Packed">;
+    uint32 offsetGroupInfo;;
+    uint32 offsetLayerMasks;
+    uint32 offsetLayerMasksUsage;
+    uint32 offsetLightmaps;
+    uint32 offsetLightmapsUsage;
+    uint32 offsetDObjects <comment="Packed">;
+    uint32 offsetRTDrawStreams <comment="Packed">;
+    uint32 offsetRTRoomBoxesList;
+    uint32 reserved;
+    uint32 offsetRTLayerMasks <comment="Packed">;
+    uint32 offsetRTLODMeshBoxesList;
+    uint32 offsetRTLODMeshList;
+    uint32 offsetDynamicObjLighting <comment="Packed">;
+    uint32 offsetAnimKeys;
+    uint32 offsetRTDrawStreams_Vertex <comment="Packed">;
+    uint32 offsetCollisionData <comment="Packed">;
+};
+
+struct LEVELTEXTDATA {
+    uint16 numChars;
+    if( numChars )
+        char levelTextData[numChars];
+};
+
+struct MATERIALS {
+    uint32 numMaterials;
+    if( numMaterials )
+        struct {
+            uint16 numChars;
+            if( numChars ) char name[numChars];
+        } MATERIAL_NAME[numMaterials] <optimize=false>;
+};
+
+struct GEOMETRY {
+    uint32 numVertices;
+    if( numVertices )
+    {
+        struct {
+            VECTOR3 vertex[3];
+
+        } VERTICES[numVertices];
+
+        struct {
+            TEXVERT texvert;
+        } TEXVERTS[numVertices];
+
+        struct {
+            uint32 materialID[2];;
+        } MATERIAL_INFO[numVertices];
+
+        struct {
+            VALUE3 value3;
+        } UNKNOWN3[numVertices];
+    }
+    
+};
+
+struct ROOM {
+    uint16 numChars;
+    if( numChars ) char name[numChars];
+    
+    uint32 numPortals;
+    if( numPortals ) uint32 portalID[numPortals];
+    ubyte separator[4];
+    byte unknown;
+    float rotationSpeed;
+    float fogAboveWaterRange;
+    float destiny;
+    float kResistance;
+    VECTOR3 gravityVector;
+    VECTOR3 force;
+    uint32 roomFlags;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    byte unknown;
+    uint32 cuttingDistance;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    float unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+    uint32 unknown;
+};
+
+struct ROOMPARAMS {
+    uint32 numRooms;
+    if( numRooms ) ROOM room[numRooms] <optimize=false>;
+};
+
+struct PORTAL {
+    uint32 unknown;
+    uint32 unknown;
+    VECTOR3 position[4];
+    uint32 unknown;
+};
+
+struct PORTALS {
+    uint32 numPortals;
+    if( numPortals ) PORTAL portal[numPortals];
+};
+
+enum <uint32> METHOD
+{
+  TCM_STORE = 0x0,
+  TCM_DEPRECATED = 0x1,
+  TCM_NORMAL = 0x2,
+  TCM_HIGH = 0x3,
+  TCM_ZLIB_FAST = 0x4,
+  TCM_ZLIB_NORMAL = 0x5,
+  TCM_ZLIB_HIGH = 0x6,
+};
+
+struct OBJECTS {
+    uint32 blockSize;
+    
+    uint32 uncompressedSize : 28;
+    METHOD compressionMethod : 4;
+    uint32 compressedSize;
+};
+
+struct MESH {
+    uint16 numChars;
+    if( numChars ) char name[numChars];
+
+    uint16 numFaces;
+    if( numFaces ) uint16 VertexID[numFaces];
+};
+
+struct GROUPS {
+    uint32 numMeshes;
+    if( numMeshes ) 
+        MESH mesh[numMeshes] <optimize=false>;
+};
+
+struct GROUP {
+    uint16 numChars;
+    if( numChars ) char name[numChars];
+
+    uint16 faceID;
+    uint16 numFaces;
+};
+
+struct GROUP_INFO {
+    uint16 numGroups;
+    if( numGroups )
+        GROUP group[numGroups] <optimize=false>;
+};
+
+HEADER header;
+if( header.offsetLevelTextData ) 
+{
+    FSeek( header.offsetLevelTextData );
+    LEVELTEXTDATA levelTextData; 
+}
+
+if( header.offsetMaterials )
+{
+    FSeek( header.offsetMaterials );
+    MATERIALS materials;
+};
+
+if( header.offsetGeometry )
+{
+    FSeek( header.offsetGeometry );
+    GEOMETRY geometry;
+};
+
+if( header.offsetRoomParams )
+{
+    FSeek( header.offsetRoomParams );
+    ROOMPARAMS roomParameters;
+};
+
+if( header.offsetPortals )
+{
+    FSeek( header.offsetPortals );
+    PORTALS portals;
+};
+
+if( header.offsetObjects)
+{
+    FSeek( header.offsetObjects );
+    OBJECTS objects <comment="Packed">;
+};
+
+if( header.offsetGroups)
+{
+    FSeek( header.offsetGroups );
+    GROUPS groups;
+};
+
+if( header.offsetGroupInfo)
+{
+    FSeek( header.offsetGroupInfo );
+    GROUP_INFO groupInfo;
+};

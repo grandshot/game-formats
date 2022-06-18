@@ -1,0 +1,42 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct TABLE1 {
+    int16 id_pmld;
+    int16 unknown[3];
+    int16 instanceId[4];
+};
+
+struct INSTANCES {
+    uint32 id_GEBI[header.numInstances];
+};
+
+struct HEADER {
+    uint32 table1Offset;
+    uint32 offsetInstances;
+    uint32 table1Count;
+    uint32 numInstances;
+    uint32 unknown;
+    float positionY;
+    float positionX;
+    float positionZ;
+    int32 unknown;
+    int32 unknown;
+};
+
+HEADER header;
+
+FSeek(header.table1Offset);
+TABLE1 table1[header.table1Count];
+
+FSeek(header.offsetInstances);
+INSTANCES instances;
